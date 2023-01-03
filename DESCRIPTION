@@ -1,0 +1,10 @@
+Package: WADE
+Title: Executes molecular typing on contig assemblies
+Version: 0.0.0.9000
+Authors@R: person("Walter", "Demczuk", email = "walter.demczuk@canada.ca", role = c("aut", "cre"))
+Description: Creates an output_profile.csv of molecular typing results.
+Depends: R (>= 3.5.0)
+License: NML/PHAC
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.2

@@ -1,0 +1,6 @@
+*.rhistory
+thumbs.db
+*.Rproj.user
+*.html
+
+.Rproj.user

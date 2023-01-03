@@ -1,0 +1,3 @@
+[submodule "wade-data"]
+	path = wade-data
+	url = https://gitlab.cscscience.ca/speterson/wade-data.git
