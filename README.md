@@ -126,7 +126,11 @@ When running this program on some Windows machines, the MakeBlastdb program can 
    ```sh  
    Variable Name: BLASTDB_LMDB_MAP_SIZE
    Variable Value: 1000000
-   ```
+   ```  
+   
+## WADE Standalone Programs
+  
+The wade/standalones folder contains standalone versions of MasterBlastR, SerotypeR and WamR-Pneumo. Use of these tools through the WADE interface is recommended, however these standalone versions are available for use. Instructions for each tool can be found in the readme files within each tool's respective folder.
 
 ## Legal
 

@@ -1,0 +1,12 @@
+INC,MIC,Interp
+-2,0.25,Susceptible
+-1,0.5,Susceptible
+0,1,Susceptible
+1,2,Susceptible
+2,4,Intermediate
+3,8,Resistant
+4,16,Resistant
+5,32,Resistant
+6,64,Resistant
+7,128,Resistant
+8,256,Resistant
