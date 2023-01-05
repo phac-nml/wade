@@ -1,0 +1,4 @@
+Serotype,23_wchA_allele,23_wzy_23A_result,23_wzy_23B_result,23_wzy_23F_result
+23A,23A,POS,NEG,NEG
+23B,23B,NEG,POS,NEG
+23F,23F,NEG,NEG,POS

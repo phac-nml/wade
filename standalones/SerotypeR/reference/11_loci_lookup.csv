@@ -1,0 +1,8 @@
+Serotype,11_wcjE_result,11_wcjE_pseudo,11_wcwC_result,11_wcwR_result,11_wcrL_mutations,11_gct_pseudo
+11A,POS,Intact,POS,NEG,112N,Intact
+11B,NEG,Intact,NEG,POS,NA,Disrupted
+11C,NEG,Intact,NEG,POS,NA,Intact
+11D,POS,Intact,POS,NEG,112S,Intact
+11F,POS,Intact,POS,NEG,112A,Disrupted
+11A(11E),POS,Disrupted,POS,NEG,112N,Intact
+11A(11E),NEG,NA,POS,NEG,112N,Intact
