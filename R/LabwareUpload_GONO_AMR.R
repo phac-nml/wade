@@ -707,21 +707,24 @@ if (cip_interp != "S" )
 
   }else
   {
-
+    spe_interp <- "S"  #there's no mic look up table for SPE
+    
     if (lw_16S_C1192T == "C1192T")
     {
       spe <- ">=128 ug/ml"
+      spe_interp <- "R"
     }
     if (lw_16S_T1458C == "T1485C")
     {
       spe <- "64 ug/ml"
+      spe_interp <- "I"
     }
 
     if (spe == ">=128 ug/ml" | spe == "64 ug/ml")
     {
       if (amr_profile == "Susceptible")
-      {amr_profile <- "SPE-R"} else
-      {amr_profile <- paste(amr_profile, sepr2, "SPE-R", sep = "")}
+      {amr_profile <-  paste("SPE-", spe_interp, sep = ""  )} else
+      {amr_profile <- paste(amr_profile, sepr2, "SPE-", spe_interp, sep = "")}
     }
 
   }
@@ -743,7 +746,27 @@ if (cip_interp != "S" )
   {
     lw_Output.df <- bind_rows(lw_Output.df, sample_data.df)
   }
+  
+  #----------------------------------------------------------------With Interpretations SIR.
+  sample_data2.df <- tibble(lw_CurrSampleNo, lw_ermB, lw_ermC, lw_rpsJ, lw_tetM, lw_bla, lw_penA_prof,
+                            lw_mtrR_p, lw_mtrR_A39, lw_mtrR_G45,
+                            lw_porB_struct, lw_porB_G120, lw_porB_A121, lw_ponA,
+                            lw_gyrA_S91, lw_gyrA_D95,
+                            lw_parC_D86, lw_parC_S87, lw_parC_S88, lw_parC_E91,
+                            lw_23S_A2059G, lw_23S_C2611T, lw_16S_C1192T, lw_16S_T1458C, amr_profile,
+                            azi, azi_interp, cfx, cfx_interp, cfm, cfm_interp, cip, cip_interp,
+                            tet, tet_interp, pen, pen_interp, spe, spe_interp)
+  
+  
+  if(m==1)
+  {
+    lw_Output2.df <- tibble(sample_data2.df)
+  }else
+  {
+    lw_Output2.df <- bind_rows(lw_Output2.df, sample_data2.df)
+  }
 }
+#----------------------------------------------------------------------------------------------------
 
 lw_output_bad.df <- filter(lw_Output.df, amr_profile == "Error")
 lw_output_good.df <- filter(lw_Output.df, amr_profile != "Error")
@@ -751,6 +774,8 @@ lw_output_good.df <- filter(lw_Output.df, amr_profile != "Error")
 write.csv(lw_Output.df, paste(local_output_dir, "LabWareUpload_GONO_AMR.csv", sep = ""), quote = FALSE, row.names = FALSE)
 write.csv(lw_output_good.df, paste(local_output_dir, "LabWareUpload_GONO_AMR_good.csv", sep = ""), quote = FALSE, row.names = FALSE)
 write.csv(lw_output_bad.df, paste(local_output_dir, "LabWareUpload_GONO_AMR_bad.csv", sep = ""), quote = FALSE, row.names = FALSE)
+
+write.csv(lw_Output2.df, paste(local_output_dir, "LabWareUpload_GONO_AMR2.csv", sep = ""), quote = FALSE, row.names = FALSE)
 
 return(lw_Output.df)
 

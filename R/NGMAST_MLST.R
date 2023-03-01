@@ -121,7 +121,8 @@ NGMAST_pipeline <- function(Org_id, SampleNo, locus, curr_work_dir) {
         }
 
         Blast_Out_File <- paste(local_temp_dir, "blastout.txt", sep = "")
-        BlastCommand <- paste("blastn -query ", DestFile, " -db ", LocusLkupDNA, " -out ", Blast_Out_File, " -num_alignments 100 -evalue 10e-50 -outfmt 6")
+        BlastCommand <- paste("blastn -query ", DestFile, " -db ", LocusLkupDNA, 
+                              " -out ", Blast_Out_File, " -num_alignments 100 -evalue 10e-50 -outfmt 6")
 
         shell(BlastCommand)
 
