@@ -133,6 +133,14 @@ EMM_pipeline <- function(Org_id, SampleNo, locus, curr_work_dir){
 
           #now find a match
           df.blastout_2 <- anti_join(df.blastout, df.bad_emm, by = "Allele")  #remove bad emm's
+          #2023-02-09 WD: If there is no good emm types even with partial match (blastout_2 is empty),
+          #               but only bad ones, use the bad one as
+          #               the alternative emm type as if it were a partial match.
+          dfSize_blastout_2 <- nrow(df.blastout_2)
+          if (dfSize_blastout_2 == 0)
+          {
+            df.blastout_2 <- df.blastout_bad
+          }
           df.blastout100 <- filter(df.blastout_2, Ident == 100 & Align == CurrLocusLen)
 
           dfSize <- nrow(df.blastout100)
