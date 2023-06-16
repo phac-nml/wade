@@ -2,7 +2,7 @@
 
 ## What is WADE?
 
-WADE provides a flexible and customizable method to extract specific genes from a large number of genomes at once using BLAST to interrogate assembled genomes, current molecular analyses include antimicrobial resistance, toxins, virulence profiles and several multi-locus sequence typing (MLST) schemes. The Virulence Factor DataBase (VFDB) and antimicrobial resistance factor databases CARD, ARG-ANNOT and ResFinder have also been made available.
+WADE provides a flexible and customizable method for analyzing genomic data from _Streptococcus pneumoniae, Streptococcus pyogenes, Streptococcus agalactiae,_ and _Neisseria gonorrhoeae_. WADE can extract specific genes from a large number of genomes at once using BLAST to interrogate assembled genomes. Current molecular analyses include antimicrobial resistance, toxins, virulence profiles and several multi-locus sequence typing (MLST) schemes.  
 
 Tabular results are output in a format that is compatible for LabWare uploads. These results can consist of simple "Positive-Negative" results corresponding to presence or absence of a queried gene. Curated multi-fasta lookup files can be provided for molecular determinants to create molecular profiles of affective mutations. Fasta file outputs of gene sequences extracted from the genomes can readily be loaded into sequence aligners to correlate nucleotide differences to phenotypic observations.
 
