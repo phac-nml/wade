@@ -2,7 +2,8 @@
 % Please edit documentation in R/Newick_tree_labels.R
 \name{nwk_rename_samples}
 \alias{nwk_rename_samples}
-\title{Replace sequencing sample numbers in a newick tree file}
+\title{Replace sequencing sample numbers in a newick tree file
+December 21 2023, Walter Demczuk & Shelley Peterson}
 \usage{
 nwk_rename_samples(Org_id, curr_work_dir)
 }
@@ -16,6 +17,7 @@ A table frame containing the results of the query
 }
 \description{
 Replace sequencing sample numbers in a newick tree file
+December 21 2023, Walter Demczuk & Shelley Peterson
 }
 \details{
 Replace node labels in newick file:

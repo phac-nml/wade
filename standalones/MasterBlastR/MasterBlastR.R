@@ -14,11 +14,11 @@ library(Biostrings)
 
 # USER INPUT -----------------------------------------------------------------------------------
 
-    SampleNo <- "12345"           # Single sample no or "list" for list.csv
+    SampleNo <- "list"           # Single sample no or "list" for list.csv
     Variable <- NA                # Information to be displayed in outputs (MIC value, metadata)
-    LocusID <- "parC"             # Single locus gene or "list" for loci.csv
+    LocusID <- "mtrD"             # Single locus gene or "list" for loci.csv
     curr_work_dir <- "C:\\MasterBlastR\\"
-    ContigsDir <- "C:\\MasterBlastR\\contigs\\"
+    ContigsDir <- "W:\\Projects\\Project_GC_WalterD\\MiSeq\\Gonorrhoea\\contigs\\"
 
 # FILES ----------------------------------------------------------------------------------------
     SampleListName <- "list.csv"  # File name of sample num list if SampleNo="list", otherwise ignored
@@ -484,11 +484,13 @@ for(m in 1L:NumSamples)
 
     if(p==1)
     {
-      OutputLocus.df <- tibble(AlleleInfo[1], AlleleInfo[2], AlleleInfo[3], AlleleInfo[4], IdLine_trimmed, IDpercent2, motifs)
+    #  OutputLocus.df <- tibble(AlleleInfo[1], AlleleInfo[2], AlleleInfo[3], AlleleInfo[4], IdLine_trimmed, IDpercent2, motifs)
+      OutputLocus.df <- tibble(AlleleInfo[1], AlleleInfo[2], mutations, AlleleInfo[4], IdLine_trimmed, IDpercent2, motifs)
         names(OutputLocus.df) <- headers
     }else
     {
-      OutputLocus2.df <- tibble(AlleleInfo[1], AlleleInfo[2], AlleleInfo[3], AlleleInfo[4], IdLine_trimmed, IDpercent2, motifs)
+      #OutputLocus2.df <- tibble(AlleleInfo[1], AlleleInfo[2], AlleleInfo[3], AlleleInfo[4], IdLine_trimmed, IDpercent2, motifs)
+      OutputLocus2.df <- tibble(AlleleInfo[1], AlleleInfo[2], mutations, AlleleInfo[4], IdLine_trimmed, IDpercent2, motifs)
       names(OutputLocus2.df) <- headers
       OutputLocus.df <- cbind(OutputLocus.df, OutputLocus2.df)
     }

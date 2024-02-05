@@ -2,18 +2,19 @@
 % Please edit documentation in R/MLST.R
 \name{MLST_pipeline}
 \alias{MLST_pipeline}
-\title{MLST pipeline for WGS assemblies}
+\title{MLST pipeline for WGS assemblies
+December 21 2023, Walter Demczuk & Shelley Peterson}
 \usage{
-MLST_pipeline(Org_id, SampleNo, locus, curr_work_dir)
+MLST_pipeline(Org_id, Test_id, SampleNo, LocusID, curr_work_dir)
 }
 \arguments{
 \item{Org_id}{Organism to query: GAS, PNEUMO or GONO}
 
 \item{SampleNo}{Sample number associated with contig.fasta file}
 
-\item{locus}{The locus to query, or enter list to use a list of alleles}
-
 \item{curr_work_dir}{Start up directory from pipeline project to locate system file structure}
+
+\item{locus}{The locus to query, or enter list to use a list of alleles}
 }
 \value{
 A table frame containing the results of the query

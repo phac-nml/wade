@@ -2,7 +2,9 @@
 % Please edit documentation in R/LabwareUpload_GONO_AMR.R
 \name{labware_gono_amr}
 \alias{labware_gono_amr}
-\title{Run AMR first, then run the 23S allele counts, and then the NGSTAR-MLST analyses
+\title{Labware Upload Formatter for GONO AMR
+December 21 2023, Walter Demczuk & Shelley Peterson
+#' Run AMR first, then run the 23S allele counts, and then the NGSTAR-MLST analyses
 Then run this analysis to combine data from AMR, 23S rRNA and NG-STAR
 to prepare full amr profile to upload to LabWare.}
 \usage{
@@ -17,7 +19,9 @@ labware_gono_amr(Org_id, curr_work_dir)
 A table frame containing the results of the query
 }
 \description{
-Run AMR first, then run the 23S allele counts, and then the NGSTAR-MLST analyses
+Labware Upload Formatter for GONO AMR
+December 21 2023, Walter Demczuk & Shelley Peterson
+#' Run AMR first, then run the 23S allele counts, and then the NGSTAR-MLST analyses
 Then run this analysis to combine data from AMR, 23S rRNA and NG-STAR
 to prepare full amr profile to upload to LabWare.
 }

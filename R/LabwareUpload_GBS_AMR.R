@@ -1,3 +1,5 @@
+#' Labware Upload Formatter for GBS AMR
+#' February 5 2024, Walter Demczuk & Shelley Peterson
 #' Run AMR first
 #' Then run this analysis to combine data the full amr profile to upload to LabWare.
 #'
@@ -8,693 +10,381 @@
 #' @export
 #'
 #'
-labware_gbs_amr <- function(Org_id, curr_work_dir) {
 
-  #------------------------------------------------------------------------------------------------------------
-  # get directory structure
-  dir_file <- paste(curr_work_dir, "DirectoryLocations.csv", sep="")
-  Directories.df <- as_tibble(read.csv(dir_file, header = TRUE, sep = ",", stringsAsFactors = FALSE))
-  Directories_org.df <- filter(Directories.df, OrgID == Org_id)
-  local_dir <- Directories_org.df$LocalDir
-  SampList <- paste(local_dir, "list.csv", sep = "")
-  local_output_dir <- paste(local_dir, "Output\\", sep = "")
-  local_temp_dir <- paste(local_dir, "temp\\", sep = "")
-  system_dir <- Directories_org.df$SystemDir
-  ContigsDir <- Directories_org.df$ContigsDir
+#-------------------------------------------------------------------------------
+#  For troubleshooting and debugging
+#Org_id <- "GBS"                  #GAS, PNEUMO or GONO
+#curr_work_dir <- "C:\\WADE\\"
+#-------------------------------------------------------------------------------
 
-  Output.df <- as_tibble(read.csv(paste(local_output_dir, "output_profile_GBS_AMR.csv", sep = ""),
+labware_gbs_amr <- function(Org_id, curr_work_dir){
+
+  #-----------------------------------------------------------------------------
+  # get directory structure and remove previous output files
+  directorylist <- getdirectory(curr_work_dir, Org_id, "AMR")
+  #-----------------------------------------------------------------------------
+
+  # Load datafile
+  Output.df <- as_tibble(read.csv(paste0(directorylist$output_dir, "output_profile_GBS_AMR.csv"),
                                   header = TRUE, sep = ",", stringsAsFactors = FALSE))
 
-  Size.df <- dim(Output.df)
-  NumSamples <- Size.df[1]
-  NumLoci <- ((Size.df[2]-3) / 7)
-
-  if (NumLoci > 1)
+  NumSamples <- dim(Output.df)[1]
+  NumLoci <- ((dim(Output.df)[2]-3) / 7)
+  
+  m <- 1
+  for (m in 1L:NumSamples)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Start of Sample Loop
   {
-    sepr <- "; "
+    ############################################################################
+    # Build Molecular Profile
+    ############################################################################
+    molec_profile <- NA
+    allele_profile <- NA
+    amr_profile <- NA
+    lw_CurrSampleNo <- as.character(Output.df[m, "SampleNo"])
 
-    m <- 1
-
-    for (m in 1L:NumSamples)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    if(Output.df[m,"SampleProfile"] == "Sample_Err")
     {
-      molec_profile <- ""
-      lw_comments <- ""
-      lw_allele_profile <- ""
-      sepr3 <- " : "
-
-      lw_CurrSampleNo <- as.character(Output.df[m, "SampleNo"])
-
+      sample_data.df <- tibble(lw_CurrSampleNo, lw_ermA = "Sample_Err", 
+                               lw_ermB = "Sample_Err", lw_ermT = "Sample_Err",
+                               lw_mefAE = "Sample_Err", lw_lsaC = "Sample_Err", 
+                               lw_lnuB = "Sample_Err", lw_gyrA = "Sample_Err", 
+                               lw_parC = "Sample_Err", lw_tetM = "Sample_Err", 
+                               lw_tetO = "Sample_Err", lw_tetT = "Sample_Err", 
+                               lw_tetL = "Sample_Err", lw_cat = "Sample_Err", 
+                               lw_catQ = "Sample_Err", lw_pbp2x = "Sample_Err", 
+                               molec_profile = "Sample_Err", 
+                               ery_MIC = "Sample_Err", ery = "Sample_Err", 
+                               chl_MIC = "Sample_Err", chl = "Sample_Err", 
+                               lev_MIC = "Sample_Err", lev = "Sample_Err", 
+                               cli_MIC = "Sample_Err", cli = "Sample_Err", 
+                               tet_MIC = "Sample_Err", tet = "Sample_Err",
+                               pen_MIC = "Sample_Err", pen = "Sample_Err", 
+                               AMR_profile = "Sample_Err", allele_profile = "Sample_Err")
+      
+    } else #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Sample Not Error
+    {
+      ##### ermA #####
       lw_ermA <- as.character(Output.df[m, "ermA_result"])
+      lw_ermAp_allele <- NA
+      molec_profile_ermA <- NA
 
-      if (lw_ermA != "Sample_Err")
+      if(lw_ermA == "POS")
       {
-        #-----------------------------------------------------------------------
-        if (lw_ermA == "POS")
+        # ermA promoter analysis
+        lw_ermAp_result <- as.character(Output.df[m, "ermAp_result"]) #POS/NEG
+        lw_ermAp_allele <- as.character(Output.df[m, "ermAp_allele"]) #ID number
+        lw_ermAp_mutation <- as.character(Output.df[m, "ermAp_mutations"]) # differences from wildtype
+        lw_ermAp_comment <- as.character(Output.df[m, "ermAp_comments"]) #Susceptible(Inducible)/Resistant
+        lw_ermAp_motif <- as.character(Output.df[m, "ermAp_motifs"]) #amino acid substitutions from MasterBlastR
+      
+        if(lw_ermAp_motif == "WT/WT") {lw_ermAp_motif <- ""}
+        if(lw_ermAp_result == "NEG")
         {
-          # put ermA promoter analysis here
-          lw_ermAp_result <- as.character(Output.df[m, "ermAp_result"]) #POS/NEG
-          lw_ermAp_allele <- as.character(Output.df[m, "ermAp_allele"]) #ID number
-          lw_ermAp_mutation <- as.character(Output.df[m, "ermAp_mutations"]) #differences from wildtype from fasta header
-          lw_ermAp_comment <- as.character(Output.df[m, "ermAp_comments"]) #Susceptible(Inducible)/Resistant
-          lw_ermAp_motif <- as.character(Output.df[m, "ermAp_motifs"]) #amino acid substitutions from MasterBlastR
-
-          if (lw_ermAp_motif == "WT/WT") {lw_ermAp_motif <- ""}
-
-          if (lw_ermAp_result == "NEG")
+          molec_profile_ermA <- "ermA R"
+          lw_ermAp_allele <- "ermAp 0"
+        }else # susceptible promoter found, might have mutations for CLI-R
+        {
+          if(lw_ermAp_motif == "D61G/P74Q")
           {
-            molec_value <- "ermA R"
-            allele_value <- " 0"
-          } else # susceptible promoter found, might have mutations for CLI-R
+            molec_profile_ermA <- "ermA S D61G/P74Q"    # CLI-Inducible
+            lw_ermAp_allele <- paste0("ermAp ", lw_ermAp_allele)
+          }else
           {
-            if (lw_ermAp_motif == "D61G/P74Q")
-            {
-              molec_value <- "ermA S"    # CLI-Inducible
-              allele_value <- paste(" ", lw_ermAp_allele, sep = "")
-            } else
-            {
-              molec_value <- "ermA R"
-              allele_value <-" 0"
-            }
-          }
-
-          if (molec_profile == "")
-          {molec_profile <- paste(molec_value, " ", lw_ermAp_motif, sep = "")}else
-          {molec_profile <- paste(molec_profile, sepr, molec_value, " ", lw_ermAp_motif, sep = "")}
-
-          if (lw_allele_profile == "")
-          {lw_allele_profile <- paste("ermAp", allele_value, sep = "")}else
-          {lw_allele_profile <- paste(lw_allele_profile, sepr3, "ermAp", allele_value, sep = "")}
-        }
-
-        #-----------------------------------------------------------------------
-
-        lw_ermB <- as.character(Output.df[m, "ermB_result"])
-        if (lw_ermB == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "ermB"}else
-          {molec_profile <- paste(molec_profile, sepr, "ermB", sep = "")}
-        }
-
-        lw_ermT <- as.character(Output.df[m, "ermT_result"])
-        if (lw_ermT == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "ermT"}else
-          {molec_profile <- paste(molec_profile, sepr, "ermT", sep = "")}
-        }
-
-        lw_mefAE <- as.character(Output.df[m, "mefAE_result"])
-        if (lw_mefAE == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "mefAE"}else
-          {molec_profile <- paste(molec_profile, sepr, "mefAE", sep = "")}
-        }
-
-        lw_lnuB <- as.character(Output.df[m, "lnuB_result"])
-        if (lw_lnuB == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "lnuB"}else
-          {molec_profile <- paste(molec_profile, sepr, "lnuB", sep = "")}
-        }
-
-        lw_lsaC <- as.character(Output.df[m, "lsaC_result"])
-        if (lw_lsaC == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "lsaC"}else
-          {molec_profile <- paste(molec_profile, sepr, "lsaC", sep = "")}
-        }
-
-        #-------------------------------------------------------------------------
-        lw_gyrA <-   as.character(Output.df[m, "gyrA_motifs"])  # this avoids needing curation to get MIC
-        lw_gyrA_result <-   as.character(Output.df[m, "gyrA_result"])
-        lw_gyrA_allele <- as.character(Output.df[m, "gyrA_allele"])
-
-         if (lw_gyrA_result == "NEG")
-        {
-          lw_gyrA <- "no gene"
-          lw_comments <- paste(lw_comments, "gyrA missing.", sep = "")
-        }
-
-        if (!(lw_gyrA %in% c("WT", "no gene")))
-        {
-          if (molec_profile == "")
-          {molec_profile <- paste("gyrA ", lw_gyrA, sep = "")}else
-          {molec_profile <- paste(molec_profile, sepr, "gyrA ", lw_gyrA, sep = "")}
-        }
-
-        if (lw_allele_profile == "")
-        {lw_allele_profile <- paste("gyrA", lw_gyrA_allele, sep = "")}else
-        {lw_allele_profile <- paste(lw_allele_profile, sepr3, "gyrA", lw_gyrA_allele, sep = "")}
-
-        #-------------------------------------------------------------------------
-
-        lw_parC_result <-  as.character(Output.df[m, "parC_result"])
-        lw_parC_allele <- as.character(Output.df[m, "parC_allele"])
-        lw_parC_prof <- ""
-
-        if (lw_parC_result == "NEG")
-        {
-          lw_parC <- "no gene"
-          lw_comments <- paste(lw_comments, "parC missing", sep="")
-          #lw_parC_prof <- ""
-        } else
-        {
-          lw_parC <-   as.character(Output.df[m, "parC_motifs"])
-          lw_parC_parts <- unlist(strsplit(lw_parC, "/"))
-          lw_parC_D78 <-  lw_parC_parts[1]
-          lw_parC_S79 <- lw_parC_parts[2]
-          lw_parC_D83 <- lw_parC_parts[3]
-
-          if (lw_parC_D78 != "WT")
-          {
-            if (lw_parC_prof == "")
-            {lw_parC_prof <- paste("parC ", lw_parC_D78, sep = "")} else
-            {lw_parC_prof <- paste(lw_parC_prof, "/", lw_parC_D78, sep = "")}
-          }
-          if (lw_parC_S79 != "WT")
-          {
-            if (lw_parC_prof == "")
-            {lw_parC_prof <- paste("parC ", lw_parC_S79, sep = "")} else
-            {lw_parC_prof <- paste(lw_parC_prof, "/", lw_parC_S79, sep = "")}
-          }
-          if (lw_parC_D83 != "WT")
-          {
-            if (lw_parC_prof == "")
-            {lw_parC_prof <- paste("parC ", lw_parC_D83, sep = "")} else
-            {lw_parC_prof <- paste(lw_parC_prof, "/", lw_parC_D83, sep = "")}
+            molec_profile_ermA <- paste("ermA R", lw_ermAp_motif, sep = " ")
+            lw_ermAp_allele <-"ermAp 0"
           }
         }
-
-        if (lw_parC_prof != "")
-        {
-          if (molec_profile == "")
-          {molec_profile <- lw_parC_prof} else
-          {molec_profile <- paste(molec_profile, sepr, lw_parC_prof, sep = "")}
-        }
-
-        if (lw_allele_profile == "")
-        {lw_allele_profile <- paste("parC", lw_parC_allele, sep = "")}else
-        {lw_allele_profile <- paste(lw_allele_profile, sepr3, "parC", lw_parC_allele, sep = "")}
-
-        #-------------------------------------------------------------------------
-        lw_tetM <- as.character(Output.df[m, "tetM_result"])
-        if (lw_tetM == "POS")
-        {
-          lw_tetM_comments <- paste(as.character(Output.df[m, "tetM_comments"]), sep = "")
-          if(lw_tetM_comments == "NA") {lw_tetM_comments <- ""}
-
-          if (molec_profile == "")
-          {molec_profile <- paste("tetM ", lw_tetM_comments, sep = "")}else
-          {molec_profile <- paste(molec_profile, sepr, "tetM ", lw_tetM_comments, sep = "")}
-        }
-
-        lw_tetO <- as.character(Output.df[m, "tetO_result"])
-        if (lw_tetO == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "tetO"}else
-          {molec_profile <- paste(molec_profile, sepr, "tetO", sep = "")}
-        }
-
-        lw_tetT <- as.character(Output.df[m, "tetT_result"])
-        if (lw_tetT == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "tetT"}else
-          {molec_profile <- paste(molec_profile, sepr, "tetT", sep = "")}
-        }
-
-        lw_tetL <- as.character(Output.df[m, "tetL_result"])
-        if (lw_tetL == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "tetL"}else
-          {molec_profile <- paste(molec_profile, sepr, "tetL", sep = "")}
-        }
-
-        #-------------------------------------------------------------------------
-        lw_cat <- as.character(Output.df[m, "cat_result"])
-        if (lw_cat == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "cat"}else
-          {molec_profile <- paste(molec_profile, sepr, "cat", sep = "")}
-        }
-
-        lw_catQ <- as.character(Output.df[m, "catQ_result"])
-        if (lw_catQ == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "catQ"}else
-          {molec_profile <- paste(molec_profile, sepr, "catQ", sep = "")}
-        }
-
-        #-------------------------------------------------------------------------
-        # No folA or folP molecular determinants for SXT resistance reported in Metcalf et al. 2017
-        lw_dfrF <- as.character(Output.df[m, "dfrF_result"])
-        if (lw_dfrF == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "dfrF"}else
-          {molec_profile <- paste(molec_profile, sepr, "dfrF", sep = "")}
-        }
-
-        lw_dfrG <- as.character(Output.df[m, "dfrG_result"])
-        if (lw_dfrG == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "dfrG"}else
-          {molec_profile <- paste(molec_profile, sepr, "dfrG", sep = "")}
-        }
-
-        #-------------------------------------------------------------------------
-        lw_pbp2x_result <-  as.character(Output.df[m, "pbp2x_result"])
-        lw_pbp2x_allele <- as.character(Output.df[m, "pbp2x_allele"])
-        lw_pbp2x_400 <-  "" # re-set variables
-        lw_pbp2x_552 <- ""
-        lw_pbp2x_prof <- ""
-
-        if (lw_pbp2x_result == "NEG")
-        {
-          lw_pbp2x <- "no gene"
-          lw_comments <- paste(lw_comments, "pbp2x missing", sep="")
-
-        } else
-        {
-        lw_pbp2x <-   as.character(Output.df[m, "pbp2x_motifs"])
-
-        if (lw_pbp2x != "WT/WT")
-        {
-          lw_pbp2x_parts <- unlist(strsplit(lw_pbp2x, "/"))
-          lw_pbp2x_400 <-  lw_pbp2x_parts[1]
-          lw_pbp2x_552 <- lw_pbp2x_parts[2]
-          if (is.na(lw_pbp2x_552)){lw_pbp2x_552 <- "WT"}
-
-          if (lw_pbp2x_400 != "WT")
-          {
-            if (lw_pbp2x_prof == "")
-            {lw_pbp2x_prof <- paste("pbp2x ", lw_pbp2x_400, sep = "")} else
-            {lw_pbp2x_prof <- paste(lw_pbp2x_prof, "/", lw_pbp2x_400, sep = "")}
-          }
-
-          if (lw_pbp2x_552 != "WT")
-          {
-
-            if (lw_pbp2x_prof == "")
-            {lw_pbp2x_prof <- paste("pbp2x ", lw_pbp2x_552, sep = "")} else
-            {lw_pbp2x_prof <- paste(lw_pbp2x_prof, "/", lw_pbp2x_552, sep = "")}
-          }
-
-          if (lw_pbp2x_prof != "")
-          {
-            if (molec_profile == "")
-            {molec_profile <- lw_pbp2x_prof} else
-            {molec_profile <- paste(molec_profile, sepr, lw_pbp2x_prof, sep = "")}
-          }
-        }
-
-        if (lw_allele_profile == "")
-        {lw_allele_profile <- paste("pbp2x", lw_pbp2x_allele, sep = "")}else
-        {lw_allele_profile <- paste(lw_allele_profile, sepr3, "pbp2x", lw_pbp2x_allele, sep = "")}
-        }
-
-        if (lw_allele_profile == "")
-        {lw_allele_profile <- paste(lw_allele_profile, "pbp2x ", lw_pbp2x_allele, sep = "")}else
-        {lw_allele_profile <- paste(lw_allele_profile, sepr3, "pbp2x ", lw_pbp2x_allele, sep = "")}
-
-        lw_vanA <- as.character(Output.df[m, "vanA_result"])
-        if (lw_vanA == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "vanA"}else
-          {molec_profile <- paste(molec_profile, sepr, "vanA", sep = "")}
-        }
-
-        lw_vanB <- as.character(Output.df[m, "vanB_result"])
-        if (lw_vanB == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "vanB"}else
-          {molec_profile <- paste(molec_profile, sepr, "vanB", sep = "")}
-        }
-
-        lw_vanC <- as.character(Output.df[m, "vanC_result"])
-        if (lw_vanC == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "vanC"}else
-          {molec_profile <- paste(molec_profile, sepr, "vanC", sep = "")}
-        }
-
-        lw_vanD <- as.character(Output.df[m, "vanD_result"])
-        if (lw_vanD == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "vanD"}else
-          {molec_profile <- paste(molec_profile, sepr, "vanD", sep = "")}
-        }
-
-        lw_vanE <- as.character(Output.df[m, "vanE_result"])
-        if (lw_vanE == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "vanE"}else
-          {molec_profile <- paste(molec_profile, sepr, "vanE", sep = "")}
-        }
-
-        lw_vanG <- as.character(Output.df[m, "vanG_result"])
-        if (lw_vanG == "POS")
-        {
-          if (molec_profile == "")
-          {molec_profile <- "vanG"}else
-          {molec_profile <- paste(molec_profile, sepr, "vanG", sep = "")}
-        }
-
-        #---------------------------------------------------------------------------------
-        if (molec_profile == "") {molec_profile <- "Wild Type"}
-        #----------------------------------------------------------------------------------  INTERPRETATIONS
-        amr_profile <- "Susceptible"
-
-        # ERY ---------------------------------
-        if (str_detect(molec_profile, paste(c("ermA", "ermB", "ermT", "mefAE"),collapse = '|')))
-        {
-          ery_MIC <- ">= 2 ug/ml"
-          ery <- "Resistant"
-        }else
-        {
-          ery_MIC <- "<=0.25 ug/ml"
-          ery <- "Susceptible"
-        }
-
-        # CLI ---------------------------------
-        if (str_detect(molec_profile, paste(c("ermB", "lsaC", "lnuB"),collapse = '|')))
-        {
-          cli_MIC <- ">= 1 ug/ml"
-          cli <- "Resistant"
-        }else if (str_detect(molec_profile, "ermT"))
-        {
-          cli_MIC <- "<= 0.12 ug/ml"
-          cli <- "Inducible"
-        }else {
-          cli_MIC <- "<= 0.12 ug/ml"
-          cli <-"Susceptible"
-        } #if no determinants or mefAE then susceptible
-
-
-        if (str_detect(molec_profile, "ermA S"))
-        {
-          cli_MIC <- "<= 0.12 ug/ml"
-          cli <- "Inducible"
-        }
-        if (str_detect(molec_profile, "ermA R"))
-        {
-          cli_MIC <- ">= 1 ug/ml"
-          cli <- "Resistant"
-        }
-
-        # CHL ---------------------------------
-        if (str_detect(molec_profile, paste(c("cat", "catQ"),collapse = '|')))
-        {
-          chl_MIC <- ">= 16 ug/ml"
-          chl <- "Resistant"
-        }else
-        {
-          chl_MIC <- "<= 4 ug/ml"
-          chl <- "Susceptible"
-        }
-
-        # LEV ---------------------------------
-        lev <- "Undetermined"
-        lev_MIC <- "Undetermined"
-        if (lw_gyrA == "no gene" | lw_parC == "no gene"  )
-        { lev_MIC <- "Error"
-        lev <- "Error"
-        #amr_profile <- "Error"
-        }else
-        {
-
-          if (str_detect(molec_profile, "gyrA S81")) #gyrA mutations
-          {
-            lev_MIC <- ">= 8 ug/ml"
-            lev <- "Resistant"
-          } else
-            if ((str_detect(molec_profile, "S80"))) # first parC mutation
-            {
-              lev_MIC <- "2 ug/ml"
-              lev <- "Susceptible"
-            } else
-              if ((str_detect(molec_profile, paste(c("S79", "D83"),collapse = '|')))) # 2nd 3rd parC mutations
-              {
-                lev_MIC <- "4 ug/ml"
-                lev <- "Intermediate"
-              } else
-              {lev_MIC <- "<= 0.5 ug/ml"
-              lev <- "Susceptible"}
-        }
-
-        # TET ---------------------------------
-        if (str_detect(molec_profile, paste(c("tetM", "tetO", "tetT", "tetL"),collapse = '|')))
-        {
-          tet_MIC <- ">= 8 ug/ml"
-          tet <- "Resistant"
-        }else{
-          tet_MIC <- "<= 1 ug/ml"
-          tet <- "Susceptible"}
-
-        if (str_detect(molec_profile, "tetM Disrupted"))
-        {
-          tet_MIC <- "<= 1 ug/ml"
-          tet <- "Susceptible"
-        }
-
-        # SXT ---------------------------------
-        if (str_detect(molec_profile, paste(c("dfrG", "dfrF"),collapse = '|')))
-        {
-          sxt_MIC <- "<= 4/76 ug/ml"
-          sxt <- "Resistant"
-        }else
-        {
-          sxt_MIC <- "<= 0.5/9.5 ug/ml"
-          sxt <- "Susceptible"
-        }
-
-        # PEN ---------------------------------
-        if (lw_pbp2x == "no gene")
-        {
-          pen_MIC <- "Error"
-          pen <- "Error"
-        }else
-          {
-
-            if (str_detect(molec_profile, "pbp2x"))
-              {
-              pen_MIC <- ">= 0.12 ug/ml "
-              pen <- "Decreased Susceptiblity"
-              }
-            else
-              {
-              pen_MIC <- "<= 0.12 ug/ml"
-              pen <- "Susceptible"
-              }
-          }
-
-        # Vancomycin ---------------------------------
-        if (str_detect(molec_profile, paste(c("vanA", "vanB", "vanC", "vanD", "vanE", "vanG"),collapse = '|')))
-        {
-          van_MIC <- ">= 2 ug/ml"
-          van <- "Resistant"
-        }else{
-          van_MIC <- "<= 1 ug/ml"
-          van <- "Susceptible"}
-
-        #--------------------------------------------------------------  MAKE AMR PROFILE
-        #--------------------------------------------------------------
-        if (amr_profile != "Error")
-        {
-
-          amr_profile <- "Susceptible"
-          sepr2 <- "/"
-
-          if (ery == "Resistant")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "ERY-R"} else
-            {amr_profile <- paste(amr_profile, sepr2, "ERY-R", sep = "")}
-          }
-          if (ery == "Intermediate")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "ERY-I"} else
-            {amr_profile <- paste(amr_profile, sepr2, "ERY-I", sep = "")}
-          }
-
-
-          if (cli == "Resistant")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "CLI-R"} else
-            {amr_profile <- paste(amr_profile, sepr2, "CLI-R", sep = "")}
-          }
-          if (cli == "Inducible")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "CLI-Ind"} else
-            {amr_profile <- paste(amr_profile, sepr2, "CLI-Ind", sep = "")}
-          }
-
-          if (chl == "Resistant")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "CHL-R"} else
-            {amr_profile <- paste(amr_profile, sepr2, "CHL-R", sep = "")}
-          }
-
-          if (lev == "Resistant")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "LEV-R"} else
-            {amr_profile <- paste(amr_profile, sepr2, "LEV-R", sep = "")}
-          }
-          if (lev == "Intermediate")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "LEV-I"} else
-            {amr_profile <- paste(amr_profile, sepr2, "LEV-I", sep = "")}
-          }
-
-          if (tet == "Resistant")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "TET-R"} else
-            {amr_profile <- paste(amr_profile, sepr2, "TET-R", sep = "")}
-          }
-
-          if (sxt == "Resistant")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "SXT-R"} else
-            {amr_profile <- paste(amr_profile, sepr2, "SXT-R", sep = "")}
-          }
-          if (sxt == "Intermediate")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "SXT-I"} else
-            {amr_profile <- paste(amr_profile, sepr2, "SXT-I", sep = "")}
-          }
-
-          if (pen == "Decreased Susceptiblity")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "PEN-DS"} else
-            {amr_profile <- paste(amr_profile, sepr2, "PEN-DS", sep = "")}
-          }
-
-          if (van == "Resistant")
-          {
-            if (amr_profile == "Susceptible")
-            {amr_profile <- "VAN-R"} else
-            {amr_profile <- paste(amr_profile, sepr2, "VAN-R", sep = "")}
-          }
-        }
-
-      }else  #endif ermA != Sample_err
-      {
-        lw_ermA <- "Sample_Err"
-        lw_ermB <- "Sample_Err"
-        lw_ermT <- "Sample_Err"
-        lw_mefAE <- "Sample_Err"
-        lw_lsaC <- "Sample_Err"
-        lw_lnuB <- "Sample_Err"
-        lw_gyrA <- "Sample_Err"
-        lw_parC <- "Sample_Err"
-        lw_tetM <- "Sample_Err"
-        lw_tetO <- "Sample_Err"
-        lw_tetT <- "Sample_Err"
-        lw_tetL <- "Sample_Err"
-        lw_cat <- "Sample_Err"
-        lw_catQ <- "Sample_Err"
-        lw_dfrF <- "Sample_Err"
-        lw_dfrG <- "Sample_Err"
-        lw_pbp2x <- "Sample_Err"
-        molec_profile <- "Sample_Err"
-        ery_MIC <- "Sample_Err"
-        ery <- "Sample_Err"
-        chl_MIC <- "Sample_Err"
-        chl <- "Sample_Err"
-        lev_MIC <- "Sample_Err"
-        lev <- "Sample_Err"
-        cli_MIC <- "Sample_Err"
-        cli <- "Sample_Err"
-        tet_MIC <- "Sample_Err"
-        tet <- "Sample_Err"
-        sxt_MIC <- "Sample_Err"
-        sxt <- "Sample_Err"
-        pen_MIC <- "Sample_Err"
-        pen <- "Sample_Err"
-        amr_profile <- "Sample_Err"
-        lw_allele_profile <- "Sample_Err"
       }
 
-      #-------------------------------------------------------------- New Uploader structure
-      LabWare_Sample.df <- tibble(
-        lw_CurrSampleNo,
-        lw_ermA,
-        lw_ermB,
-        lw_ermT,
-        lw_mefAE,
-        lw_lsaC,
-        lw_lnuB,
-        lw_gyrA,
-        lw_parC,
-        lw_tetM,
-        lw_tetO,
-        lw_tetT,
-        lw_tetL,
-        lw_cat,
-        lw_catQ,
-        lw_pbp2x,
-        molec_profile, #in LabWare test, but missing from Line List Export.
-        ery_MIC,
-        ery,
-        chl_MIC,
-        chl,
-        lev_MIC,
-        lev,
-        cli_MIC,
-        cli,
-        tet_MIC,
-        tet,
-        pen_MIC,
-        pen,
-        amr_profile,
-        lw_allele_profile
-      )
+      ##### ermB #####
+      ermB <- posneg_gene(Output.df, "ermB", m)
+    
+      ##### ermT #####
+      ermT <- posneg_gene(Output.df, "ermT", m)
+      
+      ##### mefAE #####
+      mefAE <- posneg_gene(Output.df, "mefAE", m)
+      
+      ##### lnuB #####
+      lnuB <- posneg_gene(Output.df, "lnuB", m)
+      
+      ##### lsaC #####
+      lsaC <- posneg_gene(Output.df, "lsaC", m)
 
-      #--------------------------------------------------------------
+      ##### gyrA #####
+      gyrA <- allele1SNP(Output.df, "gyrA", "motifs", m)
+      
+      ##### parC #####
+      parC <- allele3SNPs(Output.df, "parC", "parC", "motifs", "D78", "S79", "D83", m)
 
-      if(m==1)  #if first sample make one row profile table, otherwise add new row to table
+      ##### tetM #####
+      tetM <- posneg_gene(Output.df, "tetM", m)
+      tetM$molec_profile_tetM[Output.df$tetM_comments[m] == "Disrupted"] <- "tetM Disrupted"
+      
+      ##### tetO #####
+      tetO <- posneg_gene(Output.df, "tetO", m)  
+    
+      ##### tetT #####
+      tetT <- posneg_gene(Output.df, "tetT", m)
+      
+      ##### tetL #####
+      tetL <- posneg_gene(Output.df, "tetL", m)
+      
+      ##### cat #####
+      cat <- posneg_gene(Output.df, "cat", m)
+      
+      ##### catQ #####
+      catQ <- posneg_gene(Output.df, "catQ", m) 
+
+      ##### dfrF #####
+      dfrF <- posneg_gene(Output.df, "dfrF", m) ################################ Not included in labware export, but is included in molec_profile
+      
+      ##### dfrG #####
+      dfrG <- posneg_gene(Output.df, "dfrG", m) ################################ Not included in labware export, but is included in molec_profile
+
+      ##### pbp2x #####
+      pbp2x <- allele2SNPs(Output.df, "pbp2x", "pbp2x", "motifs", "400", "552", m)
+
+      # -------------------- Vancomycin - Not included in LW export, but is included in molec_profile
+        
+      ##### vanA #####
+      vanA <- posneg_gene(Output.df, "vanA", m)
+      
+      ##### vanB #####
+      vanB <- posneg_gene(Output.df, "vanB", m)
+        
+      ##### vanC #####
+      vanC <- posneg_gene(Output.df, "vanC", m)
+      
+      ##### vanD #####
+      vanD <- posneg_gene(Output.df, "vanD", m)
+      
+      ##### vanE #####
+      vanE <- posneg_gene(Output.df, "vanE", m)
+      
+      ##### vanG #####
+      vanG <- posneg_gene(Output.df, "vanG", m)
+      
+      ######################## Now put them all together #######################
+      molec_profile <- paste(molec_profile_ermA, ermB$molec_profile_ermB, 
+                             ermT$molec_profile_ermT, mefAE$molec_profile_mefAE,
+                             lnuB$molec_profile_lnuB, lsaC$molec_profile_lsaC,
+                             gyrA$molec_profile_gyrA, parC$molec_profile_parC, 
+                             tetM$molec_profile_tetM, tetO$molec_profile_tetO, 
+                             tetT$molec_profile_tetT, tetL$molec_profile_tetL,
+                             cat$molec_profile_cat, catQ$molec_profile_catQ,
+                             dfrF$molec_profile_dfrF, dfrG$molec_profile_dfrG,
+                             pbp2x$molec_profile_pbp2x, vanA$molec_profile_vanA,
+                             vanB$molec_profile_vanB, vanC$molec_profile_vanC,
+                             vanD$molec_profile_vanD, vanE$molec_profile_vanE, 
+                             vanG$molec_profile_vanG, sep = "; ")
+      molec_profile <- gsub("NA; ", "", molec_profile)
+      molec_profile <- sub("; NA", "", molec_profile)
+    
+      if(molec_profile == "NA") {molec_profile <- "Wild Type"}
+    
+      allele_profile <- paste(lw_ermAp_allele, gyrA$allele_gyrA, parC$allele_parC,
+                              pbp2x$allele_pbp2x, sep = ": ")
+      allele_profile <- gsub("NA: ", "", allele_profile)
+      allele_profile <- sub(": NA", "", allele_profile)     
+      
+      ##########################################################################
+      # Calculate MICs
+      ##########################################################################
+      
+      ##### Erythromycin (ERY) #####
+      if(str_detect(molec_profile, paste(c("ermA", "ermB", "ermT", "mefAE"),collapse = '|')))
       {
-        LabWare.df <- tibble(LabWare_Sample.df)
+        ery_MIC <- ">= 2 ug/ml"
+        ery <- "Resistant"
+        ery_AMR <- "ERY-R"
       }else
       {
-        LabWare.df <- rbind(LabWare.df, LabWare_Sample.df)
+        ery_MIC <- "<= 0.25 ug/ml"
+        ery <- "Susceptible"
+        ery_AMR <- NA
       }
-    }
+      
+      ##### Clindamycin (CLI) #####
+      if(str_detect(molec_profile, paste(c("ermB", "lsaC", "lnuB"), collapse = '|')))
+      {
+        cli_MIC <- ">= 1 ug/ml"
+        cli <- "Resistant"
+        cli_AMR <- "CLI-R"
+      }else if(str_detect(molec_profile, "ermT"))
+      {
+        cli_MIC <- "<= 0.12 ug/ml"
+        cli <- "Inducible"
+        cli_AMR <- "CLI-Ind"
+      }else
+      {
+        cli_MIC <- "<= 0.12 ug/ml"
+        cli <-"Susceptible"
+        cli_AMR <- NA
+      }
+      
+      if(str_detect(molec_profile, "ermA S"))
+      {
+        cli_MIC <- "<= 0.12 ug/ml"
+        cli <- "Inducible"
+        cli_AMR <- "CLI-Ind"
+      }
+      
+      if(str_detect(molec_profile, "ermA R"))
+      {
+        cli_MIC <- ">= 1 ug/ml"
+        cli <- "Resistant"
+        cli_AMR <- "CLI-R"
+      }
+      
+      ##### Chloramphenicol (CHL) #####
+      if(str_detect(molec_profile, paste(c("cat", "catQ"),collapse = '|')))
+      {
+        chl_MIC <- ">= 16 ug/ml"
+        chl <- "Resistant"
+        chl_AMR <- "CHL-R"
+      }else
+      {
+        chl_MIC <- "<= 4 ug/ml"
+        chl <- "Susceptible"
+        chl_AMR <- NA
+      }
 
-    lw_output_bad.df <- filter(LabWare.df, amr_profile == "Error")
+      ##### Levofloxacin (LEV) #####
+      if(gyrA$lw_gyrA == "Err" | parC$lw_parC == "Err")
+      {
+        lev_MIC <- "Error"
+        lev <- "Error"
+        lev_AMR <- "LEV-Err"
+      }else if(str_detect(molec_profile, "gyrA S81"))
+      {
+        lev_MIC <- ">= 8 ug/ml"
+        lev <- "Resistant"
+        lev_AMR <- "LEV-R"
+      }else if((str_detect(molec_profile, paste(c("S79", "D83"), collapse = '|'))))
+      {
+        lev_MIC <- "4 ug/ml"
+        lev <- "Intermediate"
+        lev_AMR <- "LEV-I"
+      }else if(str_detect(molec_profile, "parC"))
+      {
+        lev_MIC <- "2 ug/ml"
+        lev <- "Susceptible"
+        lev_AMR <- NA
+      }else
+      {
+        lev_MIC <- "<= 0.5 ug/ml"
+        lev <- "Susceptible"
+        lev_AMR <- NA
+      }
 
-    write.csv(LabWare.df, paste(local_output_dir, "LabWareUpload_GBS_AMR.csv", sep = ""), quote = FALSE,  row.names = FALSE)
-    write.csv(lw_output_bad.df, paste(local_output_dir, "LabWareUpload_GBS_AMR_bad.csv", sep = ""), quote = FALSE,  row.names = FALSE)
+      ##### Tetracycline (TET) #####
+      if(str_detect(molec_profile, paste(c("tetM", "tetO", "tetT", "tetL"), collapse = '|')))
+      {
+        tet_MIC <- ">= 8 ug/ml"
+        tet <- "Resistant"
+        tet_AMR <- "TET-R"
+      }else
+      {
+        tet_MIC <- "<= 1 ug/ml"
+        tet <- "Susceptible"
+        tet_AMR <- NA
+      }
+    
+      if(str_detect(molec_profile, "tetM Disrupted"))
+      {
+        tet_MIC <- "<= 1 ug/ml"
+        tet <- "Susceptible"
+        tet_AMR <- NA
+      }
 
-    cat("\n\nDone! ", local_output_dir, "LabWareUpload_GBS_AMR.csv is ready in output folder", "\n\n\n", sep = "")
+      ##### Trimethoprim/Sulfamethoxazole (SXT) #####
+      # No folA or folP molecular determinants for SXT resistance reported in Metcalf et al. 2017    
+      if(str_detect(molec_profile, paste(c("dfrG", "dfrF"), collapse = '|')))
+      {
+        sxt_MIC <- ">= 4/76 ug/ml" #=4/76
+        sxt <- "Resistant"
+        sxt_AMR <- "SXT-R"
+      }else
+      { 
+        sxt_MIC <- "<= 0.5/9.5 ug/ml"
+        sxt <- "Susceptible"
+        sxt_AMR <- NA
+      }
+      
+      ##### Penicillin (PEN) #####
+      if(str_detect(pbp2x$lw_pbp2x, "Err"))
+      {
+        pen_MIC <- "Error"
+        pen <- "Error"
+        pen_AMR <- "PEN-Err"
+      }else
+      {
+        if(str_detect(molec_profile, "pbp2x"))
+        {
+          pen_MIC <- ">= 0.12 ug/ml"
+          pen <- "Unknown"
+          pen_AMR <- "pen-DS"
+        }else
+        {
+          pen_MIC <- "<= 0.12 ug/ml"
+          pen <- "Susceptible"
+          pen_AMR <- NA
+        }
+      }  
+        
+      ##### Vancomycin (VAN) #####
+      if(str_detect(molec_profile, paste(c("vanA", "vanB", "vanC", "vanD", "vanE", "vanG"), collapse = '|')))
+      {
+        van_MIC <- ">= 2 ug/ml"
+        van <- "Resistant"
+        van_AMR <- "VAN-R"
+      }else
+      {
+        van_MIC <- "<= 1 ug/ml"
+        van <- "Susceptible"
+        van_AMR <- NA
+      }
+        
+      ###################### Combine them for AMR profile ######################
+      AMR_profile <- paste(ery_AMR, cli_AMR, chl_AMR, lev_AMR, tet_AMR, sxt_AMR,
+                           pen_AMR, van_AMR, sep = "/")
+      AMR_profile <- gsub("NA/", "", AMR_profile)
+      AMR_profile <- sub("/NA", "", AMR_profile)
+        
+      if(AMR_profile == "NA") {AMR_profile <- "Susceptible"}
 
-  }else  # else if a single loci was run return the original output.csv
-  {
-    LabWare.df <- Output.df
-  }
-  return(LabWare.df)
+      ##########################################################################
+      # Put all data together
+      ##########################################################################
+
+      sample_data.df <- tibble(lw_CurrSampleNo, lw_ermA, ermB$lw_ermB,
+                               ermT$lw_ermT, mefAE$lw_mefAE, lsaC$lw_lsaC,
+                               lnuB$lw_lnuB, gyrA$lw_gyrA, parC$lw_parC, 
+                               tetM$lw_tetM, tetO$lw_tetO, tetT$lw_tetT, 
+                               tetL$lw_tetL, cat$lw_cat, catQ$lw_catQ,  
+                               pbp2x$lw_pbp2x, molec_profile, ery_MIC, ery, 
+                               chl_MIC, chl, lev_MIC, lev, cli_MIC, cli, 
+                               tet_MIC, tet, pen_MIC, pen, AMR_profile, 
+                               allele_profile)
+      sample_data.df <- sample_data.df %>% rename_at(vars(contains("$")), ~sub(".*\\$","",.))
+    } # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ End of Sample Not Error Loop
+      
+      if(m==1)  #if first sample make one row profile table, otherwise add new row to table
+      {
+        lw_Output.df <- tibble(sample_data.df)
+      }else
+      {
+        lw_Output.df <- rbind(lw_Output.df, sample_data.df)
+      }
+  } # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> End of Sample Loop
+
+  lw_output_bad.df <- filter(lw_Output.df, amr_profile == "Error")
+
+  write.csv(lw_Output.df, paste(directorylist$output_dir, "LabWareUpload_GBS_AMR.csv", sep = ""), quote = FALSE,  row.names = FALSE)
+  write.csv(lw_output_bad.df, paste(directorylist$output_dir, "LabWareUpload_GBS_AMR_bad.csv", sep = ""), quote = FALSE,  row.names = FALSE)
+
+  cat("\n\nDone! ", directorylist$output_dir, "LabWareUpload_GBS_AMR.csv is ready in output folder", "\n\n\n", sep = "")
+
+  return(lw_Output.df)
 }

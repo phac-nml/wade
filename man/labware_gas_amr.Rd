@@ -2,7 +2,9 @@
 % Please edit documentation in R/LabwareUpload_GAS_AMR.R
 \name{labware_gas_amr}
 \alias{labware_gas_amr}
-\title{Run AMR first
+\title{Labware Upload Formatter for GAS AMR
+December 21 2023, Walter Demczuk & Shelley Peterson
+Run AMR first
 Then run this analysis to combine data the full amr profile to upload to LabWare.}
 \usage{
 labware_gas_amr(Org_id, curr_work_dir)
@@ -16,6 +18,8 @@ labware_gas_amr(Org_id, curr_work_dir)
 A table frame containing the results of the query
 }
 \description{
+Labware Upload Formatter for GAS AMR
+December 21 2023, Walter Demczuk & Shelley Peterson
 Run AMR first
 Then run this analysis to combine data the full amr profile to upload to LabWare.
 }

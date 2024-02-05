@@ -2,7 +2,8 @@
 % Please edit documentation in R/SerotypeR.R
 \name{SEROTYPE_pipeline}
 \alias{SEROTYPE_pipeline}
-\title{Molecular typing pipeline for WGS assemblies}
+\title{Serotyping pipeline for WGS assemblies
+December 21 2023, Walter Demczuk & Shelley Peterson}
 \usage{
 SEROTYPE_pipeline(Org_id, SampleNo, LocusID, Test_id, curr_work_dir)
 }
@@ -34,7 +35,7 @@ Interprets snps to serotype level
 The algorithm first determines the serogroup by blasting CPS_reference
 Each locus in the locus list (temp folder) associated with that serogroup will then be blasted
 There are 4 stages of locus analysis:
-1)result = POS/NEG (presence/abscence)
+1)result = POS/NEG (presence/absence)
 2)pseudo = pseudogene (disrupted/intact)
 3)mutations = serotype determining amino acid substitutions as listed in locus_mutations
 4)allele = entire gene sequence match of conserved serotype determining genes as found in the allele_lookup folders

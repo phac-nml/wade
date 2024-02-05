@@ -2,8 +2,8 @@
 % Please edit documentation in R/23SrRNA.R
 \name{rRNA23S_pipeline}
 \alias{rRNA23S_pipeline}
-\title{23SrRNA.R
-23S rRNA pipeline for WGS assemblies to determine number of mutated alleles}
+\title{23S rRNA pipeline for WGS assemblies to determine number of mutated alleles
+December 21 2023, Walter Demczuk & Shelley Peterson}
 \usage{
 rRNA23S_pipeline(Org_id, SampleNo, curr_work_dir)
 }
@@ -18,8 +18,8 @@ rRNA23S_pipeline(Org_id, SampleNo, curr_work_dir)
 A table frame containing the results of the query
 }
 \description{
-23SrRNA.R
 23S rRNA pipeline for WGS assemblies to determine number of mutated alleles
+December 21 2023, Walter Demczuk & Shelley Peterson
 }
 \details{
 23S rRNA pipeline for WGS assemblies to determine number of mutated alleles

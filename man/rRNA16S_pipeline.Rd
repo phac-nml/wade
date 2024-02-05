@@ -2,7 +2,9 @@
 % Please edit documentation in R/16SrRNA.R
 \name{rRNA16S_pipeline}
 \alias{rRNA16S_pipeline}
-\title{Then run this analysis to combine data output MasterBlastR profile to upload to LabWare.}
+\title{16SrRNA Pipeline
+December 21 2023, Walter Demczuk & Shelley Peterson
+Run this analysis to combine data output MasterBlastR profile to upload to LabWare.}
 \usage{
 rRNA16S_pipeline(Org_id, curr_work_dir)
 }
@@ -15,5 +17,7 @@ rRNA16S_pipeline(Org_id, curr_work_dir)
 A table frame containing the results of the query
 }
 \description{
-Then run this analysis to combine data output MasterBlastR profile to upload to LabWare.
+16SrRNA Pipeline
+December 21 2023, Walter Demczuk & Shelley Peterson
+Run this analysis to combine data output MasterBlastR profile to upload to LabWare.
 }

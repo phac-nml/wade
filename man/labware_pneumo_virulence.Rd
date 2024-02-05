@@ -2,7 +2,9 @@
 % Please edit documentation in R/LabwareUpload_PNEUMO_VIRULENCE.R
 \name{labware_pneumo_virulence}
 \alias{labware_pneumo_virulence}
-\title{run MasterBlastR first, then this script outputs csv to LabWareUpload_GAS_TOXINS.csv in Output folder}
+\title{Labware Upload Formatter for PNEUMO VIRULENCE
+December 21 2023, Walter Demczuk & Shelley Peterson
+run MasterBlastR first, then this script outputs csv to LabWareUpload_GAS_TOXINS.csv in Output folder}
 \usage{
 labware_pneumo_virulence(Org_id, curr_work_dir)
 }
