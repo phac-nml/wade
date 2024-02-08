@@ -40,9 +40,9 @@ and the use of the BLAST+ executable from NCBI: <https://blast.ncbi.nlm.nih.gov/
     a.  from github using:
 
     ``` sh
-    install.packages("githubinstall")
-    library(githubinstall)
-    githubinstall("wade")
+    install.packages("devtools")
+    library("devtools") 
+    install_github("phac-nml/wade")
     ```
 
     OR
