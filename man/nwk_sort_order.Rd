@@ -3,7 +3,7 @@
 \name{nwk_sort_order}
 \alias{nwk_sort_order}
 \title{Gets the sort order for samples from a newick tree file.
-Browse to newick file and gets the sample id sort order.}
+December 21 2023, Walter Demczuk & Shelley Peterson}
 \usage{
 nwk_sort_order(Org_id, curr_work_dir)
 }
@@ -16,6 +16,5 @@ nwk_sort_order(Org_id, curr_work_dir)
 A table frame containing the results of the query
 }
 \description{
-Gets the sort order for samples from a newick tree file.
 Browse to newick file and gets the sample id sort order.
 }

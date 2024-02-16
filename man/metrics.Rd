@@ -2,7 +2,9 @@
 % Please edit documentation in R/LabwareUpload_Metrics.R
 \name{metrics}
 \alias{metrics}
-\title{Browse to raw downloaded .csv files to create the upload format table for Labware
+\title{Labware Upload Formatter for WGS Metrics
+December 21 2023, Walter Demczuk & Shelley Peterson
+Browse to raw downloaded .csv files to create the upload format table for Labware
 Doesn't matter in what order files are selected
 Will combine columns into Labware upload ready .csv}
 \usage{
@@ -17,6 +19,8 @@ metrics(Org_id, curr_work_dir)
 A table frame containing the results of the query
 }
 \description{
+Labware Upload Formatter for WGS Metrics
+December 21 2023, Walter Demczuk & Shelley Peterson
 Browse to raw downloaded .csv files to create the upload format table for Labware
 Doesn't matter in what order files are selected
 Will combine columns into Labware upload ready .csv

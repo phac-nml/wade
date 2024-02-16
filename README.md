@@ -2,7 +2,7 @@
 
 ## What is WADE?
 
-WADE provides a flexible and customizable method for analyzing genomic data from _Streptococcus pneumoniae, Streptococcus pyogenes, Streptococcus agalactiae,_ and _Neisseria gonorrhoeae_. WADE can extract specific genes from a large number of genomes at once using BLAST to interrogate assembled genomes. Current molecular analyses include antimicrobial resistance, toxins, virulence profiles and several multi-locus sequence typing (MLST) schemes.  
+WADE provides a flexible and customizable method to extract specific genes from a large number of genomes at once using BLAST to interrogate assembled genomes, current molecular analyses include antimicrobial resistance, toxins, virulence profiles and several multi-locus sequence typing (MLST) schemes. The Virulence Factor DataBase (VFDB) and antimicrobial resistance factor databases CARD, ARG-ANNOT and ResFinder have also been made available.
 
 Tabular results are output in a format that is compatible for LabWare uploads. These results can consist of simple "Positive-Negative" results corresponding to presence or absence of a queried gene. Curated multi-fasta lookup files can be provided for molecular determinants to create molecular profiles of affective mutations. Fasta file outputs of gene sequences extracted from the genomes can readily be loaded into sequence aligners to correlate nucleotide differences to phenotypic observations.
 
@@ -12,18 +12,19 @@ This tool can be run using RStudio (available at <https://www.rstudio.com/>)
 
 ### Prerequisites
 
-This tool requires the use of R packages: plyr, dplyr, tidyverse, tidyselect, stringr, Biostrings which can be loaded using:
+This tool requires the use of R packages: plyr, tidyverse, tidyselect, tidysq, Biostrings, shiny, shinyWidgets, DT, readxl, beepr which can be loaded using:
 
 ``` sh
-library(plyr)
-library(dplyr)
-library(tidyverse)
-library(tidyselect)
-library(stringr)
-library(Biostrings)
-library(shiny)
-library(DT)
-library(here)
+library(plyr)  
+library(tidyverse)  
+library(tidyselect)  
+library(tidysq)  
+library(Biostrings)  
+library(shiny)  
+library(shinyWidgets)  
+library(DT)  
+library(readxl)  
+library(beepr)  
 library(wade)  
 ```
 
@@ -57,13 +58,15 @@ and the use of the BLAST+ executable from NCBI: <https://blast.ncbi.nlm.nih.gov/
 
     ``` sh
     install.packages("plyr")
-    install.packages("dplyr")
     install.packages("tidyverse")
-    install.packages("tidyselect")
+    install.packages("tidyselect")  
+    install.packages("tidysq")
     install.packages("stringr")
-    install.packages("shiny")
-    install.packages("DT")
-    install.packages("here")
+    install.packages("shiny")  
+    install.packages("shinyWidgets")  
+    install.packages("DT")  
+    install.packages("readxl")  
+    install.packages("beepr")
     ```
 
 5.  Install Biostrings (<https://bioconductor.org/install/>)
@@ -155,7 +158,7 @@ The wade/standalones folder contains standalone versions of MasterBlastR, Seroty
 
 ## Legal
 
-Copyright Government of Canada 2022
+Copyright Government of Canada 2024
 
 Written by: National Microbiology Laboratory, Public Health Agency of Canada
 
@@ -166,7 +169,5 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
 ## Contact
-
-**Walter Demczuk:** [Walter.Demczuk\@phac-aspc.gc.ca](mailto:Walter.Demczuk@phac-aspc.gc.ca){.email}
 
 **Shelley Peterson:** [Shelley.Peterson\@phac-aspc.gc.ca](mailto:Shelley.Peterson@phac-aspc.gc.ca){.email}

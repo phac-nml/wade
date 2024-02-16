@@ -1,4 +1,5 @@
-#' Molecular typing pipeline for WGS assemblies
+#' Serotyping pipeline for WGS assemblies
+#' February 5 2024, Walter Demczuk & Shelley Peterson
 #'
 #' Takes Organism, Sample Number, Locus, to query a contig.fasta file
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
@@ -16,7 +17,7 @@
 #' The algorithm first determines the serogroup by blasting CPS_reference
 #' Each locus in the locus list (temp folder) associated with that serogroup will then be blasted
 #' There are 4 stages of locus analysis:
-#' 1)result = POS/NEG (presence/abscence)
+#' 1)result = POS/NEG (presence/absence)
 #' 2)pseudo = pseudogene (disrupted/intact)
 #' 3)mutations = serotype determining amino acid substitutions as listed in locus_mutations
 #' 4)allele = entire gene sequence match of conserved serotype determining genes as found in the allele_lookup folders
@@ -32,129 +33,119 @@
 #' @return A table frame containing the results of the query
 #' @export
 
-###for testing
-#curr_work_dir <- "C:\\WADE\\"
-#Org_id <- "PNEUMO"
-#SampleNo <- "list"
+#-------------------------------------------------------------------------------
+#  For troubleshooting and debugging
+#Org_id <- "PNEUMO"               #GBS or PNEUMO
+#Test_id <- "SERO"
+#SampleNo <- "list"               #Sample No or "list"
 #LocusID <- "list"
+#curr_work_dir <- "C:\\WADE\\"
+#Blast_evalue <- "10e-50"         #sets sensitivity of Blast gene match 10e-50 to 10e-150; use 10e-5 for primers
+#-------------------------------------------------------------------------------
 
 SEROTYPE_pipeline <- function(Org_id, SampleNo, LocusID, Test_id, curr_work_dir){
 
-  #--------------------------------------------------------------SET VARIABLES MANUALLY FOR DEBUGGING
+  start_time <- Sys.time()
+  #-----------------------------------------------------------------------------
+  # get directory structure and remove previous output files
+  directorylist <- getdirectory(curr_work_dir, Org_id, Test_id)
+  reflist <- refdirectory(directorylist, Org_id, Test_id)
+  unlink(paste0(directorylist$output_dir, "LabWareUpload_", Org_id, "_SEROTYPE.csv"))
+  #-----------------------------------------------------------------------------
+  # Load CPS types info
+  LocusLkupDNA_CPS <- paste0(reflist$Lkup_Dir, "reference_CPS.fasta")
+  CPSlist <- paste0(directorylist$temp_dir, "CPS_types_for_blast.csv")
+  CPS_types <- read.csv(paste0(reflist$Ref_Dir, "CPS_types_for_blast.csv"), 
+                               header = TRUE, sep = ",", stringsAsFactors = FALSE)
+  CPS_types <- CPS_types$Serogroup
+  #-----------------------------------------------------------------------------
+  # Blast Evalues
+  blast_evalues.df <- as_tibble(read.csv(paste0(reflist$Ref_Dir, "blast_evalues.csv"),
+                                         header = TRUE, sep = ",", stringsAsFactors = FALSE))
+  Blast_evalue <- as.character(blast_evalues.df$contig[1])
+  evalue_allele <- as.character(blast_evalues.df$allele[1])
+  blast_wt_id_threshold <- as.numeric(blast_evalues.df$wt_id[1])
+  #-----------------------------------------------------------------------------
 
-  Variable <- NA
-  Run_MakeBlastDB <- FALSE
-
-  #------------------------------------------------------------------------------------------------------------
-  # get directory structure
-  dir_file <- paste(curr_work_dir, "DirectoryLocations.csv", sep="")
-  Directories.df <- read.csv(dir_file, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-  Directories_org.df <- filter(Directories.df, OrgID == Org_id)
-  local_dir <- Directories_org.df$LocalDir
-  SampList <- paste(local_dir, "\\", "list.csv", sep = "")
-  local_output_dir <- paste(local_dir, "\\Output\\", sep = "")
-  local_temp_dir <- paste(local_dir, "\\temp\\", sep = "")
-  system_dir <- Directories_org.df$SystemDir
-  Contigs_Dir <- Directories_org.df$ContigsDir
-  Main_Dir <- paste(system_dir, Org_id, "\\Serotype_R\\", sep = "")
-  Lkup_Dir <- paste(Main_Dir, "allele_lkup_dna\\", sep = "")
-  Tmp_Dir <- paste(Main_Dir, "temp\\", sep = "")
-  Wild_Dir <- paste(Main_Dir, "wildgenes\\", sep = "")
-  LocusLkupDNA_CPS <- paste(Lkup_Dir, "reference_CPS.fasta", sep = "")
-  CPSlist <- paste(Tmp_Dir, "CPS_types_for_blast.csv", sep = "")
-  CPS_types.df <- as_tibble(read.csv(CPSlist, header = TRUE, sep = ",", stringsAsFactors = FALSE))
-  CPS_types <- CPS_types.df$Serogroup
-  #------------------------------------------------------------------------------------------
-
-  #------------------------------------
-  # if anything changed in reference_CPS.fasta, need to re-index using 2 lines below
-  #FormatCommand <- paste("makeblastdb -in ", LocusLkupDNA_CPS, " -dbtype nucl", sep = "")
-  #shell(FormatCommand, intern = TRUE)
-  #------------------------------------
-
-  evalueList <- paste(Tmp_Dir, "blast_evalues.csv", sep = "")
-  blast_evalues.df <-  read.csv(evalueList, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-  Blast_evalue <- as.character( blast_evalues.df$contig[1])
-  evalue_CPS <- as.character(blast_evalues.df$cps[1])
-  evalue_allele <- as.character( blast_evalues.df$allele[1])
-
-  outfile_nf <- paste(local_output_dir, "output_dna_notfound.fasta", sep = "")
-  unlink(outfile_nf) #this deletes the file!
-
-  outfile <- paste(local_output_dir, "LabWareUpload_", Org_id, "_SEROTYPE.csv", sep = "")
-  unlink(outfile)
-
+  ########################### Setup sample list table ##########################
   if(SampleNo == "list")
   {
-    SampleList.df <- as_tibble(read.csv(SampList, header = TRUE, sep = ",", stringsAsFactors = FALSE))
+    SampleList.df <-as_tibble(read.csv(directorylist$SampleList, header = TRUE, sep = ",", stringsAsFactors = FALSE))
   }else
   {
-    SampleList.df <- tibble(SampleNo, Variable)
+    SampleList.df <- tibble(SampleNo, Variable = NA)
   }
+  
+  NumSamples <- dim(SampleList.df)[1]
 
-  Size.df <- dim(SampleList.df)
-  NumSamples <- Size.df[1]
-
+  #Progress Bar
+  n_iter <- NumSamples
+  init <- numeric(n_iter)
+  end <- numeric(n_iter)
+  
   m <- 1L
-  for (m in 1L:NumSamples)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  for (m in 1L:NumSamples)  #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Start Sample Loop
   {
-    CurrSampleNo <- as.character(SampleList.df[m, "SampleNo"])
-    CurrSampleVar <-as.character(SampleList.df[m, "Variable"])
-
+    init[m] <- Sys.time()
+    sampleinfo <- getsampleinfo(SampleList.df, directorylist, reflist, m)
+    
     SampleProfile <- ""
     serogroup <- ""
     serotype <- ""
-    OutputLocus.df <- tibble(SampleNo = as.character(CurrSampleNo))  #all results
+    OutputLocus.df <- tibble(SampleNo = as.character(sampleinfo$CurrSampleNo))  #all results
 
-    cat("\n\n", CurrSampleNo, ": ", m, " of ", NumSamples, "\n", sep = "")
+    cat("\n\n", sampleinfo$CurrSampleNo, ": ", m, " of ", NumSamples, "\n", sep = "")
 
-    #----------------------------  Get serogroup CPS locus for sample first
-    ContigFile <- paste(Contigs_Dir, CurrSampleNo, ".fasta", sep = "")
-    ContigFileLocal <- paste(local_temp_dir, "queryfile.fasta", sep="")
-    if (!file.copy(ContigFile, ContigFileLocal, overwrite = T))
-    {SampleFound <- FALSE
-     serogroup <- "Sample_Err"
-     serotype <- "Sample_Err"
-     serotype1 <- "Sample_Err"
-     SampleProfile <- "Sample_Err"
-    }else
-      {SampleFound <- TRUE
+    ############################################################################
+    # Get serogroup CPS locus for sample first
+    ############################################################################
+    if (sampleinfo$Allele[1] == "Sample_Err")
+    {
+      serogroup <- "Sample_Err"
+      serotype <- "Sample_Err"
+      SampleProfile <- "Sample_Err"
+    }else #..................................................................... Not Sample Error
+    {
       #makeblastdb from contig file for later when blasting wildgenes vs. contig to extract genes
-      FormatCommand <- paste("makeblastdb -in ", ContigFileLocal, " -dbtype nucl", sep = "")
-      shell(FormatCommand, intern = TRUE)
+      BlastFormatCommand <- paste0("makeblastdb -in ", reflist$DestFile, " -dbtype nucl")
+      try(system(BlastFormatCommand))
+      
       #use contig file to blast against the CPS data to see what the CPS group is
-      Blast_Out_File <- paste(local_temp_dir, "blastout_serogroup.txt", sep = "")
-      BlastCommand <- paste("blastn -query ", ContigFileLocal, " -db ", LocusLkupDNA_CPS, " -out ", Blast_Out_File, " -num_alignments 10 ", "-evalue ", evalue_CPS,  " -outfmt 6")
-      shell(BlastCommand)
+      Blast_Out_File <- blastquery(directorylist, reflist, "reference_CPS", Blast_evalue)
       info = file.info(Blast_Out_File)
       if(info$size == 0)  #no blast result from CPS locus lookup i.e. not pneumo, bad sequencing
       {
-        serotype <- "Unknown"
-        serotype1 <- "unknown"
+        serotype <- "unknown"
         serogroup <- "unknown"
       }else
       {
-        df.blastout <- as_tibble(read.csv(Blast_Out_File, header = FALSE, sep = "\t", stringsAsFactors = FALSE))
+        df.blastout <- as_tibble(read.csv(Blast_Out_File, header = FALSE, sep = "\t", stringsAsFactors = FALSE))      
         names(df.blastout) <- c("SampleNo", "Allele", "Ident", "Align", "Mismatches", "Gaps", "SampleStart", "SampleEnd", "AlleleStart", "AlleleEnd", "eValue", "bit")
-        df.blastout <- arrange(df.blastout, desc(bit))
+        df.blastout <- arrange(df.blastout, dplyr::desc(bit))
+        
         serotype1 <- df.blastout$Allele[1]
-
         SerotypeParts <- unlist(strsplit(serotype1, "_"))
         SerotypeParts <- SerotypeParts[1]
         serotype <- ifelse(substr(SerotypeParts, 1, 1) == "0", sub("^.", "", SerotypeParts), SerotypeParts)
+        serotype[serotype %in% c("15B", "15C")] <- "15BC"
 
         if (Org_id == "PNEUMO")
         {
           serogroup <- as.character(substr(SerotypeParts, 1, 2))
+          if(serogroup == "40") {serogroup <- "07"}
+          if(serogroup == "44" || serogroup == "46"){serogroup <- "12"}
+          if(serogroup == "38") {serogroup <- "25"}
+          if(serogroup == "37") {serogroup <- "33"}
+          if(serogroup == "42") {serogroup <- "35"}
         }
         if (Org_id == "GBS")
         {
           serogroup <- "GBS"
         }
-        outfile_sero <- paste(local_output_dir, "output_blastout_serogroup.csv", sep = "")
+        outfile_sero <- paste0(directorylist$output_dir, "output_blastout_serogroup.csv")
         write.csv(df.blastout, outfile_sero, quote = FALSE, row.names = F )
       }
-    }#end Sample Found
+    }#.......................................................................... close Not Sample Error loop
 
     cat("CPS Blast Serogroup ", serogroup, " - Serotype ", serotype, " !\n")
 
@@ -162,392 +153,299 @@ SEROTYPE_pipeline <- function(Org_id, SampleNo, LocusID, Test_id, curr_work_dir)
     {
       serotype <- paste("NT[", serogroup, "]", sep = "")
       SampleProfile <- serogroup
-    }else  # valid serogroup found so setup loci and get locuslist screen for serotypes requiring no snp analysis
-      if (serotype %in% CPS_types)
+    }else # //////////////////////////////////////////////////////////////////// Serogroup Found 
+    {
+      ##########################################################################
+      # setup loci and get locuslist screen for serotypes requiring no SNP analysis
+      ##########################################################################
+      if(serotype %in% CPS_types)
       {
-       SampleProfile <- "CPS operon type match"
-       locus <- ""
-       head(df.blastout, n = 5L)
-
-      }else
-      { SampleProfile <- ""
-        LocusList <- paste(Tmp_Dir, serogroup, "_loci.csv", sep = "")
-        if (file.exists(LocusList))
-          {LocusListPresent <- TRUE
+        SampleProfile <- "CPS operon type match"
+        locus <- ""
+        head(df.blastout, n = 5L)
+      }else #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Not in CPS_types list
+      {
+        LocusList <- paste0(reflist$Ref_Dir, serogroup, "_loci.csv")
+        if(file.exists(LocusList))
+        {
           LocusList.df <- read.csv(LocusList, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-
+          SerotypeLookup.df <- read.csv(paste0(reflist$Ref_Dir, serogroup, "_loci_lookup.csv"), 
+                                        header = TRUE, sep = ",", stringsAsFactors = FALSE,
+                                        check.names = FALSE)
           if(LocusID != "list")
-            {LocusList.df <- filter(LocusList.df, Locus_id == LocusID)}
-          SizeList <- dim(LocusList.df)
-          NumLoci <- SizeList[1]
-        }else {
-              LocusListPresent <- FALSE
-              NumLoci <- 0
-              }
+          {
+            LocusList.df <- filter(LocusList.df, Locus_id == LocusID)
+          }
+          NumLoci <- dim(LocusList.df)[1]
+        }else 
+        {
+          NumLoci <- 0
+        }
 
-        LocusMutationsFile <- paste(Tmp_Dir, serogroup, "_loci_mutations.csv", sep = "")
+        LocusMutationsFile <- paste0(reflist$Ref_Dir, serogroup, "_loci_mutations.csv")
         if(file.exists(LocusMutationsFile))
-        {Mutns <- "Yes"
-        LocusMutations.df <- read.csv(LocusMutationsFile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-        } else {Mutns <- "No"}
-
-        SerotypeLookupFile <- paste(Tmp_Dir, serogroup, "_loci_lookup.csv", sep = "")
-        if(file.exists(SerotypeLookupFile))
-        {SeroLookupPresent <- "Yes"
-        SerotypeLookup.df <- read.csv(SerotypeLookupFile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-
-        if (Org_id == "PNEUMO")
         {
-        headers <- names(SerotypeLookup.df) #need to remove the first X from each header name
-        headers2 <- substr(headers, 2, 50 )
-        headers2[1]<-"Serotype"
-        names(SerotypeLookup.df) <- headers2
-
-        headers2 <- substr(headers, 2, 50 )
-        headers2[1]<-"Serotype"
+          Mutns <- "Yes"
+          LocusMutations.df <- read.csv(LocusMutationsFile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+        } else 
+        {
+          Mutns <- "No"
         }
 
-        } else {SeroLookupPresent <- "No"}
-
-        if ((Run_MakeBlastDB) && (LocusListPresent))
+        OutputLocus.df <- tibble(SampleNo = as.character(sampleinfo$CurrSampleNo))  #all results
+        OutputLocusProfile.df <- OutputLocus.df #for serotype
+    
+        p <- 1L
+        for(p in 1L:NumLoci) #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Locus Loop
         {
-          for(q in 1L:NumLoci)
+          ProfileSeparator <- ifelse(SampleProfile == "", "", ";")
+          CurrLocus <- as.character(LocusList.df$Locus_id[p])
+          locus <- gsub("GBS_", "", CurrLocus) #makes profile smaller for GBS LabWare output
+          locus_result_type <- as.character(LocusList.df$Result_type[p])
+        
+          LocusLkupDNA <- paste0(reflist$Lkup_Dir, locus, ".fasta")
+          LocusLkupDNApresent <- ifelse(file.exists(LocusLkupDNA), TRUE, FALSE)
+
+          resultcol <- paste0(locus, "_result")
+          allelecol <- paste0(locus, "_allele")
+          pseudocol <- paste0(locus, "_pseudo")
+          mutationscol <- paste0(locus, "_mutations")
+          OutputLocus.df[1, resultcol] <- NA
+          OutputLocus.df[1, allelecol] <- NA
+          OutputLocus.df[1, mutationscol] <- NA
+          OutputLocus.df[1, pseudocol] <- NA
+
+          LocusFile <- paste0(reflist$WT_Dir, locus, ".fasta")
+          if(!file.exists(LocusFile))
           {
-            locus <- as.character(LocusList.df[q,1])
-            LocusLkupDNA <- paste(Lkup_Dir, locus, ".fasta", sep = "")
-            if(file.exists(LocusLkupDNA))
+            sample_error.df <- tibble(Locus_ID = LocusID, Output = "Reference wildtype file not found.")
+            OutputLocus.df <- OutputLocus.df %>% replace(is.na(.), "Locus_Err")
+            return(sample_error.df)
+          }else #*************************************************************** WT gene found
+          {
+            BlastResult <- blasthits(reflist, directorylist, LocusFile, Blast_evalue)
+            OutputLocus.df[1,2] <- BlastResult  #result
+            blastoutput <- readLines(paste0(directorylist$temp_dir, "blastout.txt"))
+
+            if(locus_result_type == "result")
             {
-              BlastFormatCommand <- paste("makeblastdb -in ", LocusLkupDNA, " -dbtype nucl", sep = "")
-              try(system(BlastFormatCommand))
-            }
-          }
-        }
-
-    #XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  Loci List
-
-    OutputLocus.df <- tibble(SampleNo = as.character(CurrSampleNo))  #all results
-    OutputLocusProfile.df <- tibble(SampleNo = as.character(CurrSampleNo)) #for serotype
-    p <- 1L
-    for(p in 1L:NumLoci)
-    {
-      ifelse(SampleProfile == "", ProfileSeparator <- "", ProfileSeparator<-";")
-      locus <- as.character(LocusList.df$Locus_id[p])
-
-      LocusFile <- paste(Wild_Dir, locus, ".fasta", sep = "")
-      if(!file.exists(LocusFile))
-      {
-        sample_error.df <- tibble(Loucs_ID = LocusID, Output = "Reference wildtype file not found.")
-        return(sample_error.df)
-      }
-
-      locus2 <- gsub("GBS_", "", locus) #makes profile smaller for GBS LabWare output
-      locus_result_type <- as.character(LocusList.df$Result_type[p])
-
-      LocusLkupDNA <- paste(Lkup_Dir, locus, ".fasta", sep = "")
-      ifelse(file.exists(LocusLkupDNA), LocusLkupDNApresent <- TRUE, LocusLkupDNApresent <- FALSE)
-
-      col2_name <- paste(locus, "_result", sep = "")
-      col3_name <- paste(locus, "_allele", sep = "")
-      col4_name <- paste(locus, "_mutations", sep = "")
-      col5_name <- paste(locus, "_pseudo", sep = "")
-
-      OutputLocus.df[1, col2_name] <- NA
-      OutputLocus.df[1, col3_name] <- NA
-      OutputLocus.df[1, col4_name] <- NA
-      OutputLocus.df[1, col5_name] <- NA
-
-      LocusFile <- paste(Wild_Dir, locus, ".fasta", sep = "")
-      if(!file.exists(LocusFile))
-      {
-        OutputLocus.df[1, col2_name] <- "Locus_Err"  #result
-        OutputLocus.df[1, col3_name] <- "Locus_Err"  #allele
-        OutputLocus.df[1, col4_name] <- "Locus_Err"  #mutations
-        OutputLocus.df[1, col5_name] <- "Locus_Err"  #pseudo
-        WildTypeLocusPresent <- FALSE
-      }else   #only do the rest of the code if there is a wild type gene
-        {
-        WildTypeLocusPresent <- TRUE
-
-        BlastCommand <- paste("blastn -query ", LocusFile, " -db ", ContigFileLocal, " -out ", local_temp_dir, "blastout.txt -evalue ", Blast_evalue, sep = "")
-
-        shell(BlastCommand, intern = TRUE)
-
-        Blastout <- paste(local_temp_dir, "blastout.txt", sep = "")
-        con <- file(Blastout, open="r")
-        linn <- readLines(con)
-        close(con)
-
-        #check if gene was found in BLAST
-        BlastResult <- NA
-        for (x in 1:length(linn))
-        {
-          if (str_detect(linn[x], "No hits found"))
-          {
-            BlastResult <- "NEG"
-            break()   #break out of blastout scan when line found with no hits
-          } else
-          {
-            BlastResult <- "POS"
-          }
-        }
-        OutputLocus.df[col2_name] <- BlastResult  #result
-
-        if (locus_result_type == "result")
-        {
-          OutputLocusProfile.df[col2_name] <- BlastResult
-          locus2 <- gsub("GBS_", "", locus)
-          SampleProfile <- paste(SampleProfile, ProfileSeparator, locus2, "[", BlastResult, "]", sep="")
-          cat(col2_name, BlastResult, "\n", sep = "\t\t")
-          if (LocusID == "list"){SerotypeLookup.df <- filter(SerotypeLookup.df, (  ((!!sym(col2_name)) == BlastResult) | (is.na(!!sym(col2_name)) ))  )}
-        }
-        #============================================= add missing genes to profile for mutations and pseudogenes
-        if ((locus_result_type == "pseudo") & (BlastResult == "NEG"))
-        {
-          SampleProfile <- paste(SampleProfile, ProfileSeparator, locus2, "[no pseudogene]", sep="")
-          cat(col5_name, "no gene present", "\n", sep = "\t\t")
-        }
-        if ((locus_result_type == "mutations") & (BlastResult == "NEG"))
-        {
-          SampleProfile <- paste(SampleProfile, ProfileSeparator, locus2, "[no mutn gene]", sep="")
-          cat(col4_name, "no gene present", "\n", sep = "\t\t")
-        }
-        if ((locus_result_type == "allele") & (BlastResult == "NEG"))
-        {
-          SampleProfile <- paste(SampleProfile, ProfileSeparator, locus2, "[no allele gene]", sep="")
-          cat(col3_name, "no gene present", "\n", sep = "\t\t")
-        }
-
-        #==========================================================
-
-        DNASeqLine_str <- ""
-        WTDNASeqLine_str <- ""
-        TimesThrough <- 0
-        i<-1L
-        if (BlastResult == "POS")
-        {
-          for (i in 1:length(linn))
-          {
-            if (str_detect(linn[i], "Score =")) #set counter to parse only first align block of blastout
-            {
-              TimesThrough <- TimesThrough + 1
-            }
-
-            if (TimesThrough == 1)
-            {
-              if (str_detect(linn[i], "Query "))
+              SampleProfile <- paste0(SampleProfile, ProfileSeparator, locus, "[", BlastResult, "]")
+              cat(paste0(locus, "_result"), BlastResult, "\n", sep = "\t\t")
+              
+              if(LocusID == "list")
               {
-                QueryLine <-  unlist(strsplit(linn[i], " "))
-                QueryLine <- QueryLine[QueryLine != ""]
-                WTDNASeqLine_str <- paste(WTDNASeqLine_str, QueryLine[3], sep = "")
-              }
-
-              if (str_detect(linn[i], "Sbjct "))
-              {
-                SbjctLine <-  unlist(strsplit(linn[i], " "))
-                SbjctLine <- SbjctLine[SbjctLine != ""]
-                DNASeqLine_str <- paste(DNASeqLine_str, SbjctLine[3], sep = "")
+                SerotypeLookup.df <- SerotypeLookup.df %>% filter(.[[resultcol]] == BlastResult|
+                                                                   is.na(.[[resultcol]]))
               }
             }
-          }
-
-          WTDNASeqLine <- DNAString(WTDNASeqLine_str)
-          WTDNASeqLine_NoDash_str <- str_replace_all(WTDNASeqLine_str, "-", "")
-          WTDNASeqLine_NoDash <- DNAString(WTDNASeqLine_NoDash_str)
-
-          DNASeqLine <- DNAString(DNASeqLine_str)
-          DNASeqLine_NoDash_str1 <- str_replace_all(DNASeqLine_str, "-", "")
-          DNASeqLine_NoDash_str <- str_replace_all(DNASeqLine_NoDash_str1, "N", "")
-          DNASeqLine_NoDash <- DNAString(DNASeqLine_NoDash_str)
-
-          Seq_File <- paste(local_temp_dir, "querygene.fasta", sep="")
-          sink(Seq_File, split=FALSE, append = FALSE)
-          cat(">", CurrSampleNo, "_", locus , "\n", DNASeqLine_NoDash_str, sep ="")
-          sink()
-
-          if (LocusID != "list")
-          {
-            cat("\n\n>", locus , "(Wildtype)\n", WTDNASeqLine_str, "\n", sep ="")
-            cat("\n\n>", CurrSampleNo, "_", locus , "\n", DNASeqLine_str, "\n", sep ="")
-          }
-
-          #-------------------------------------------------------------------------------make Protein sequence
-          WTAASeqLine <- suppressWarnings(translate(WTDNASeqLine_NoDash))
-          WTAASeqLine_str <- toString(WTAASeqLine)
-          AASeqLine <- suppressWarnings(translate(DNASeqLine_NoDash))
-          AASeqLine_str <- toString(AASeqLine)
-
-          AASeqLine_length <- str_length(AASeqLine_str)
-          AAseqLine_lastchr <- substring(AASeqLine_str, AASeqLine_length, AASeqLine_length)
-          if (AAseqLine_lastchr == "*"){AASeqLine_str <- substring(AASeqLine_str, 1L, AASeqLine_length-1)}
-
-          ifelse (str_detect(AASeqLine_str, "[*]"), nonsence_mutation <- "Disrupted", nonsence_mutation <- "Intact") #used for wcjE_11E
-
-          #update locus ouput
-          OutputLocus.df[col5_name] <- nonsence_mutation  #pseudo
-          if (locus_result_type == "pseudo")
-          {
-            OutputLocusProfile.df[col5_name] <- nonsence_mutation
-            SampleProfile <- paste(SampleProfile, ProfileSeparator, locus2, "[", nonsence_mutation, "]", sep="")
-            cat(col5_name, nonsence_mutation, "\n", sep = "\t\t")
-            if (LocusID == "list"){SerotypeLookup.df <- filter(SerotypeLookup.df, (  (!!sym(col5_name)) == nonsence_mutation | is.na(!!sym(col5_name))  ))}
-          }
-
-          if (LocusID != "list")
-          {
-            cat("\n\n>", locus , "(Wildtype)\n", WTAASeqLine_str, "\n", sep ="")
-            cat("\n\n>", CurrSampleNo, "_", locus , "\n", AASeqLine_str, "\n", sep ="")
-          }
-
-          #-------------------------------------------------------------------------------------------mutations
-          motifs <- ""
-          if (Mutns == "Yes")
-          {
-            LocusMutationsCurr.df <- filter(LocusMutations.df, Locus_id == locus)
-            SizeMutns.df <- dim(LocusMutationsCurr.df)
-            NumMutations <- SizeMutns.df[1]
-            aa_mut_name <- ""
-            aa_start <- ""
-            aa_end <- ""
-            aa_mut <- ""
-            aa_value <- ""
-            motif<-""
-            motifs <- ""
-
-            if (NumMutations > 0 )
+            #------------------------------------------------------------------- 
+            #add missing genes to profile for mutations and pseudogenes
+            if((locus_result_type == "pseudo") & (BlastResult == "NEG"))
             {
-              for(w in 1L:NumMutations)
+              SampleProfile <- paste(SampleProfile, ProfileSeparator, locus, "[no pseudogene]", sep="")
+              cat(pseudocol, "no gene present", "\n", sep = "\t\t")
+            }
+            if((locus_result_type == "mutations") & (BlastResult == "NEG"))
+            {
+              SampleProfile <- paste(SampleProfile, ProfileSeparator, locus, "[no mutn gene]", sep="")
+              cat(mutationscol, "no gene present", "\n", sep = "\t\t")
+            }
+            if((locus_result_type == "allele") & (BlastResult == "NEG"))
+            {
+              SampleProfile <- paste(SampleProfile, ProfileSeparator, locus, "[no allele gene]", sep="")
+              cat(allelecol, "no gene present", "\n", sep = "\t\t")
+            }
+            #-------------------------------------------------------------------
+
+            DNASeqLine_str <- ""
+            WTDNASeqLine_str <- ""
+            blastdetails <- ""
+            if(BlastResult == "POS") #========================================== Positive BLAST Result Loop
+            {
+              # Parse out to get WT and query DNA sequences, match % etc.
+              blast_parsed <- parseblast(blastoutput, LocusID)
+              
+              # Print both WT and query DNA sequences
+              if(LocusID != "list")
               {
-                aa_mut_name <- LocusMutationsCurr.df[w,"Name"]
-                aa_start <- LocusMutationsCurr.df[w,"Posn_1"]
-                aa_end <- LocusMutationsCurr.df[w,"Posn_2"]
-                aa_mut <- LocusMutationsCurr.df[w,"Mutation"]
-                aa_value<-substr(AASeqLine_str, aa_start, aa_end)
-                if (motifs=="") {motif_sep <- ""}else{motif_sep <- "/"}
+                cat("\n\n>", CurrLocus, "(Wildtype)\n", blast_parsed$WTDNASeqLine_NoDash_str, "\n", sep ="")
+                cat("\n\n>", sampleinfo$CurrSampleNo, "_", CurrLocus , "\n", blast_parsed$DNASeqLine_NoDash_str, "\n", sep ="")
+              }
+              
+              WTDNASeqLine <- DNAString(blast_parsed$WTDNASeqLine_str)
+              WTDNASeqLine_NoDash <- DNAString(blast_parsed$WTDNASeqLine_NoDash_str)
+              DNASeqLine <- DNAString(blast_parsed$DNASeqLine_str)
+              DNASeqLine_NoDash <- DNAString(blast_parsed$DNASeqLine_NoDash_str)
 
-                 if (aa_mut == aa_value)
-                 {motif<- paste(motif_sep, aa_start, aa_mut, sep = "")}else
-                 {motif<-""}
-                motifs <- paste(motifs, motif, sep = "")
-              } #endfor
-            }
-            if (LocusID != "list"){cat("\nMotif: ", motifs, "\n\n", sep = "")}
-          } #endif mutations found
+              ##################################################################
+              # Make Protein Sequence + Check if gene is intact
+              ##################################################################
+              blastAA <- AAconvert(WTDNASeqLine_NoDash, DNASeqLine_NoDash)
 
-          OutputLocus.df[col4_name] <- motifs  #mutations
-          if (locus_result_type == "mutations")
+              if(locus_result_type == "pseudo")
+              {
+                #update locus output
+                WTend <- head(unlist(gregexpr('[*]', blastAA$WTAASeqLine_str[1])), n = 1)
+                WTend <- ifelse(is.na(WTend), "0", WTend)
+                queryend <- head(unlist(gregexpr('[*]', blastAA$AASeqLine_str[1])), n = 1)
+                queryend <- ifelse(is.na(queryend), 0, queryend)
+                diff <- ifelse(queryend == -1, 0, (WTend - queryend))
+                lengthdiff <- blast_parsed$WTlength - blast_parsed$IDlength
+
+                nonsense_mutation <- ifelse(diff > 6, "Disrupted", 
+                                            ifelse((blast_parsed$WTlength - blast_parsed$IDlength > 25),
+                                            "Disrupted", "Intact"))
+                
+                OutputLocus.df[pseudocol] <- nonsense_mutation
+                OutputLocusProfile.df[pseudocol] <- nonsense_mutation
+                SampleProfile <- paste0(SampleProfile, ProfileSeparator, locus, "[", nonsense_mutation, "]")
+                cat(pseudocol, nonsense_mutation, "\n", sep = "\t\t")
+                if(LocusID == "list")
+                {
+                  SerotypeLookup.df <- SerotypeLookup.df %>% filter(.[[pseudocol]] == nonsense_mutation|
+                                                                    is.na(.[[pseudocol]]))
+                }
+              }
+
+              if(LocusID != "list")
+              {
+                cat("\n\n>", locus , "(Wildtype)\n", blastAA$WTAASeqLine_str, "\n", sep ="")
+                cat("\n\n>", sampleinfo$CurrSampleNo, "_", locus , "\n", blastAA$AASeqLine_str, "\n", sep ="")
+              }
+            
+              ##################################################################
+              # Mutations
+              ##################################################################
+              motifs <- ""
+              mutationspresent <- ""
+            
+              if(Mutns == "Yes")
+              {
+                motifs <- getmotifs(LocusMutations.df, Test_id, locus, LocusID, blastAA$AASeqLine_str)
+              }
+              
+              #motifs <- ifelse(motifs == "?", "NA", motifs)
+              OutputLocus.df[mutationscol] <- motifs
+              if(locus_result_type == "mutations")
+              {
+                OutputLocusProfile.df[mutationscol] <- motifs  #mutations
+                SampleProfile <- paste(SampleProfile, ProfileSeparator, locus, "[", motifs, "]", sep="")
+                cat(mutationscol, motifs, "\n", sep = "\t\t")
+                if(LocusID == "list")
+                {
+                  SerotypeLookup.df <- SerotypeLookup.df %>% filter(.[[mutationscol]] == motifs|
+                                                                    is.na(.[[mutationscol]]))
+                }
+              }
+            
+              ##################################################################
+              # Lookup DNA alleles
+              ##################################################################
+              # write DNASeqLine_NoDash_str to DestFile,
+              # BLAST vs. lookup table,
+              # parse out the allele numbers
+              sink(reflist$DestFile, split=FALSE, append = FALSE)
+              cat(">", sampleinfo$CurrSampleNo, "_", locus , "\n", blast_parsed$DNASeqLine_NoDash_str, sep ="")
+              sink()
+
+              if(locus_result_type == "allele")
+              {
+                #BLAST lookup table
+                Allele <- locusblast(locus, LocusList.df, sampleinfo, reflist, Test_id, Blast_evalue, 
+                                     directorylist = directorylist)
+                #Allele <- ifelse(Allele == "?", NA, Allele)
+                OutputLocus.df[allelecol] <- Allele
+                OutputLocusProfile.df[allelecol] <- Allele  #allele
+                SampleProfile <- paste0(SampleProfile, ProfileSeparator, locus, "[", Allele, "]")
+                cat(allelecol, Allele,"\n", sep = "\t\t")
+                if(LocusID == "list") 
+                {
+                  SerotypeLookup.df <- SerotypeLookup.df %>% filter(.[[allelecol]] == Allele|
+                                                                    is.na(.[[allelecol]]))
+                }
+              }
+            }#================================================================== End BLAST positive
+          }#******************************************************************** End WT gene found 
+        }#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ End Locus Loop
+
+        # Interpret molecular characterization to get serotype
+        if(LocusID == "list")
+        {
+          NumResults <- dim(SerotypeLookup.df)[1]
+          if(NumResults == 0)
           {
-            OutputLocusProfile.df[col4_name] <- motifs  #mutations
-            SampleProfile <- paste(SampleProfile, ProfileSeparator, locus2, "[", motifs, "]", sep="")
-            cat(col4_name, motifs, "\n", sep = "\t\t")
-            if (LocusID == "list")
-            {
-              SerotypeLookup.df <- filter(SerotypeLookup.df, ((!!sym(col4_name)) == motifs | is.na(!!sym(col4_name))))
-            }
-          }
-
-          #----------------------------------------------------------------------------------Lookup Alleles DNA
-          ExactMatchFound <- FALSE
-
-          if(LocusLkupDNApresent)
+            serotype <- paste0("NT[", serotype, "]")
+          }else
           {
-            #-----------------
-            Blast_Out_File <- paste(local_temp_dir, "blastout2.txt", sep = "")
-            BlastCommand <- paste("blastn -query ", Seq_File, " -db ", LocusLkupDNA, " -out ", Blast_Out_File,
-                                  " -num_alignments 10 -evalue ", evalue_allele, " -outfmt 6")
-            shell(BlastCommand)
-            info = file.info(Blast_Out_File)
-            if(info$size == 0)  #no blast result
+            for(w in 1L:NumResults)
             {
-              Allele <- NA
-            }else
-            {
-              df.blastout2 <- read.csv(Blast_Out_File, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
-              names(df.blastout2) <- c("SampleNo", "Allele", "Ident", "Align", "Mismatches", "Gaps", "SampleStart", "SampleEnd", "AlleleStart", "AlleleEnd", "eValue", "bit")
-              df.blastout <- arrange(df.blastout2, desc(bit))
-              outfile_allele <- paste(local_temp_dir, "blastout_lkup_allele.csv", sep = "")
-              write.csv(df.blastout2, outfile_allele, quote = FALSE, row.names = F )
-              Allele <- df.blastout2[1, "Allele"]
-              AlleleParts <- unlist(strsplit(Allele, "_"))
-
-
-              Allele2 <- AlleleParts[2]
-
-              if (df.blastout2$Ident[1] >= 97)
-              {Allele <- Allele2}else
-              {Allele<- "NF" #paste("NF(", Allele2, ")", sep = "")
-                outfile_nf <- paste(local_output_dir, "output_dna_notfound.fasta", sep = "")
-                sink(outfile_nf, split=FALSE, append = TRUE)
-                cat(">", locus, "_", CurrSampleNo, "_", "\n", DNASeqLine_NoDash_str, "\n", sep ="")
-                sink()
+              if(w == 1)
+              {
+                serotype <-  SerotypeLookup.df$Serotype[w]
+              }else
+              {
+                serotype <- paste0(serotype, "/", SerotypeLookup.df$Serotype[w])
               }
             }
-
-            OutputLocus.df[col3_name] <- Allele
-            if (locus_result_type == "allele")
-            {
-              OutputLocusProfile.df[col3_name] <- Allele  #allele
-              SampleProfile <- paste(SampleProfile, ProfileSeparator, locus2, "[", Allele, "]", sep="")
-              cat(col3_name, Allele,"\n", sep = "\t\t")
-              if (LocusID == "list") {SerotypeLookup.df <- filter(SerotypeLookup.df, ( ( ((!!sym(col3_name)) == Allele) |  (is.na(!!sym(col3_name))) ) )    ) }
-            }
-
-          }#close bracket for DNA lookup file exists check
-
-        }# end BLAST positive
-
-      } #close bracket for wild type gene file found.^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-    } #end of locus list loop xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-    # Interpret molecular characterization to get serotype
-    if (LocusID == "list")
-    {
-    SizeSerotypeResult <- dim(SerotypeLookup.df)
-    NumResults <- SizeSerotypeResult[1]
-    if (NumResults == 0)
-    {
-      serotype <- paste("NT[", serotype, "]", sep = "")
-    }else
-    {
-      for(w in 1L:NumResults)
-      {
-        if (w == 1)
-        {serotype <-  SerotypeLookup.df$Serotype[w]}else
-        {serotype <- paste(serotype, "/", SerotypeLookup.df$Serotype[w], sep = "")}
-      }
-    }
-    }
-
-      }     #end not sample error
+          }
+        }
+      } #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ End Not in CPS Types List
+    } #///////////////////////////////////////////////////////////////////////// End Serogroup Found
 
     if (m==1L)
     {
-      SampleOutputProfile.df <- tibble(SampleNo = CurrSampleNo, Serotype = serotype, Profile = SampleProfile)
-
+      SampleOutputProfile.df <- tibble(SampleNo = sampleinfo$CurrSampleNo, Serotype = serotype, Profile = SampleProfile)
     }else
     {
-      SampleOutputProfile2.df <- tibble(SampleNo = CurrSampleNo, Serotype = serotype, Profile = SampleProfile )
+      SampleOutputProfile2.df <- tibble(SampleNo = sampleinfo$CurrSampleNo, Serotype = serotype, Profile = SampleProfile )
       SampleOutputProfile.df<- bind_rows(SampleOutputProfile.df, SampleOutputProfile2.df)
     }
 
     cat("\nProfile:  ", SampleProfile, sep = "")
     cat("\nSerotype: ", serotype, sep = "")
+    
+    #Progress Bar
+    end[m] <- Sys.time()
+    time <- round(seconds_to_period(sum(end - init)), 0)
+    
+    # Estimated remaining time based on the
+    # mean time that took to run the previous iterations
+    est <- NumSamples * (mean(end[end != 0] - init[init != 0])) - time
+    remaining <- round(seconds_to_period(est), 0)
+    
+    cat(paste(" // Estimated time remaining:", remaining), "\n")
+  } #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< End Sample Loop
 
-  } #close brack for sample list loop<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+  outfile <- paste0(directorylist$output_dir, "LabWareUpload_", Org_id, "_SEROTYPE.csv")
   if (LocusID == "list")
   {
-  write.csv(SampleOutputProfile.df, outfile, quote = FALSE,  row.names = F)
+    write.csv(SampleOutputProfile.df, outfile, quote = FALSE,  row.names = F)
   }
 
   if (NumSamples == 1L)
   {
-    outfile_sero2 <- paste(local_output_dir, "output_profile_SEROTYPE.csv", sep = "")
+    outfile_sero2 <- paste(directorylist$output_dir, "output_profile_SEROTYPE.csv", sep = "")
     write.csv(OutputLocus.df, outfile_sero2, quote = FALSE, row.names = F )
   }
 
-  cat("\n\nDone!\n\n\n")
+  dna_nf_file <- paste0(directorylist$output_dir, "output_dna_notfound.fasta")
+  if(file.exists(dna_nf_file))
+  {
+    nf_fasta <- read_fasta(dna_nf_file)
+    nf_fasta$sq <- as.character(nf_fasta$sq)
+    unique_nf <- distinct(nf_fasta, sq, .keep_all = TRUE)
+    unique_nf <- unique_nf[,c("name", "sq")]
+    unique_nf$name <- paste0(">", unique_nf$name)
+    
+    unique_nf_file <- paste0(directorylist$output_dir, "output_dna_notfound_distinct.fasta")
+    write.table(unique_nf, file = unique_nf_file, row.names = FALSE, col.names = FALSE, 
+                quote = FALSE, sep = "\n")
+  }
+  
+  elapsed <- format(Sys.time() - start_time)
+  
+  cat("\n\nDone!\n\n\n", "Elapsed time: ", elapsed, 
+      "\n\n Serotyping Results are ready in output folder\n", sep = "")
 
   return(SampleOutputProfile.df)
-
 }

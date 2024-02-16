@@ -2,7 +2,9 @@
 % Please edit documentation in R/LabwareUpload_PNEUMO_AMR.R
 \name{labware_pneumo_amr}
 \alias{labware_pneumo_amr}
-\title{Run AMR first, then run the 23S allele counts,
+\title{Labware Upload Formatter for PNEUMO AMR
+December 21 2023, Walter Demczuk & Shelley Peterson
+Run AMR first, then run the 23S allele counts,
 Then run this analysis to combine data from AMR, 23S rRNA
 to prepare full amr profile to upload to LabWare.}
 \usage{
@@ -17,6 +19,8 @@ labware_pneumo_amr(Org_id, curr_work_dir)
 A table frame containing the results of the query
 }
 \description{
+Labware Upload Formatter for PNEUMO AMR
+December 21 2023, Walter Demczuk & Shelley Peterson
 Run AMR first, then run the 23S allele counts,
 Then run this analysis to combine data from AMR, 23S rRNA
 to prepare full amr profile to upload to LabWare.

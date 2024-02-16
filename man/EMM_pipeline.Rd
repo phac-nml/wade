@@ -2,16 +2,15 @@
 % Please edit documentation in R/EMM.R
 \name{EMM_pipeline}
 \alias{EMM_pipeline}
-\title{emm typing pipeline from WGS assemblies - October 30, 2020}
+\title{emm typing pipeline from WGS assemblies
+December 21 2023, Walter Demczuk & Shelley Peterson}
 \usage{
-EMM_pipeline(Org_id, SampleNo, locus, curr_work_dir)
+EMM_pipeline(Org_id, SampleNo, curr_work_dir)
 }
 \arguments{
 \item{Org_id}{Organism to query: GAS, PNEUMO or GONO}
 
 \item{SampleNo}{Sample number associated with contig.fasta file}
-
-\item{locus}{Sample number associated with contig.fasta file}
 
 \item{curr_work_dir}{Start up directory from pipeline project to locate system file structure}
 }
@@ -19,15 +18,16 @@ EMM_pipeline(Org_id, SampleNo, locus, curr_work_dir)
 A table frame containing the results of the query
 }
 \description{
-emm typing pipeline from WGS assemblies - October 30, 2020
+emm typing pipeline from WGS assemblies
+December 21 2023, Walter Demczuk & Shelley Peterson
 }
 \details{
 GAS emm typing:
-Takes Organism, Sample Number, Locus, and a Variable at queries a contig.fasta file.
+Takes Organism, Sample Number and queries a contig.fasta file.
 For the most current emm types go to:
 https://ftp.cdc.gov/pub/infectious_diseases/biotech/tsemm/
 download the alltrimmed.fta file
 rename to "emm_trimmed.fasta"
-and place in the allele_lkup_dna folder in WADE GAS/emm_R
+and place in the allele_lkup_dna folder in WADE GAS/emm
 then be sure to index it using MakeBlastDB
 }

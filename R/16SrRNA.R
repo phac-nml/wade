@@ -1,4 +1,6 @@
-#' Then run this analysis to combine data output MasterBlastR profile to upload to LabWare.
+#' 16SrRNA Pipeline
+#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' Run this analysis to combine data output MasterBlastR profile to upload to LabWare.
 #'
 #'
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
@@ -7,37 +9,41 @@
 #' @export
 #'
 #'
+
+#-------------------------------------------------------------------------------
+#  For troubleshooting and debugging
+#Org_id <- "GONO"                  #GAS, GBS, or PNEUMO
+#curr_work_dir <- "C:\\WADE\\"
+#Blast_evalue <- "10e-50"         #sets sensitivity of Blast gene match 10e-50 to 10e-150; use 10e-5 for primers
+#-------------------------------------------------------------------------------
+
 rRNA16S_pipeline <- function(Org_id, curr_work_dir) {
 
-  #------------------------------------------------------------------------------------------------------------
-  # get directory structure
-  dir_file <- paste(curr_work_dir, "DirectoryLocations.csv", sep="")
+  #-----------------------------------------------------------------------------
+  # get directory structure and remove previous output files
+  Test_id <- "rRNA16S"
+  directorylist <- getdirectory(curr_work_dir, Org_id, Test_id)
+  #-----------------------------------------------------------------------------
 
-  Directories.df <- as_tibble(read.csv(dir_file, header = TRUE, sep = ",", stringsAsFactors = FALSE))
-  Directories_org.df <- filter(Directories.df, OrgID == Org_id)
-  local_dir <- Directories_org.df$LocalDir
-  SampList <- paste(local_dir, "list.csv", sep = "")
-  local_output_dir <- paste(local_dir, "Output\\", sep = "")
-  local_temp_dir <- paste(local_dir, "temp\\", sep = "")
-  system_dir <- Directories_org.df$SystemDir
-  ContigsDir <- Directories_org.df$ContigsDir
-
-  Output.df <- as_tibble(read.csv(paste(local_output_dir, "output_profile_", Org_id, "_rRNA_16S.csv", sep = ""),
+  Output.df <- as_tibble(read.csv(paste0(directorylist$output_dir, "output_profile_", Org_id, "_rRNA16S.csv"),
                                   header = TRUE, sep = ",", stringsAsFactors = FALSE))
 
-  Size.df <- dim(Output.df)
-  NumSamples <- Size.df[1]
-
-  LabWare.df <- tibble(SampleNo = Output.df$SampleNo,
+  Labware.df <- tibble(SampleNo = Output.df$SampleNo,
                        Allele = Output.df$X16S_allele,
                        Identification = Output.df$X16S_comments,
-                       Percent_Match = Output.df$X16S_PctWT
-                       )
+                       Percent_Match = Output.df$X16S_PctWT)
+  
+  Labware.df$Percent <- as.numeric(str_extract(Labware.df$Percent_Match,  "(?<=\\().+?(?=\\%)"))
+  Labware.df$Allele[Labware.df$Allele == ""| Labware.df$Percent < 97] <- "NF"
+  Labware.df$Identification[Labware.df$Identification == ""| Labware.df$Percent < 97] <- "NF"
+  
+  Labware.df <- select(Labware.df, -Percent)
+  
+  write.csv(Labware.df, paste0(directorylist$output_dir, "LabWareUpload_", Org_id, "_rRNA16S.csv"), 
+            quote = FALSE,  row.names = FALSE)
 
-  write.csv(LabWare.df, paste(local_output_dir, "LabWareUpload_16S.csv", sep = ""), quote = FALSE,  row.names = FALSE)
+  cat("\n\nDone! ", directorylist$output_dir, "LabWareUpload_rRNA16S.csv is ready in output folder", "\n\n\n", sep = "")
 
-  cat("\n\nDone! ", local_output_dir, "LabWareUpload_16S.csv is ready in output folder", "\n\n\n", sep = "")
-
-return(LabWare.df)
+return(Labware.df)
 
 }
