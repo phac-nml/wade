@@ -71,13 +71,13 @@ ui <- fluidPage(
       conditionalPanel(condition = "input.Org == 'GONO'",
                        radioButtons("test", h4("Choose an analysis:"),
                        choices = list("AMR Profile" = "AMR_ALL",
-                                      #"AMR Alleles" = "AMR",
+                                      "AMR Alleles" = "AMR",
                                       "23S rRNA Alleles" = "rRNA23S",
                                       "MLST" = "MLST",
                                       "NG-STAR" = "NGSTAR",
                                       "NG-MAST" = "NGMAST",
                                       "All Routine Analyses" = "ALL",
-                                      "MasterBlastR" = "MASTERBLASTR",
+                                      #"MasterBlastR" = "MASTERBLASTR",
                                       "WGS Metrics" = "LW_METRICS"),
                        selected = "AMR_ALL")),
 
@@ -90,7 +90,7 @@ ui <- fluidPage(
                                       "16S rRNA" = "rRNA16S",
                                       "Toxin Profile" = "TOXINS",
                                       "All Routine Analyses" = "ALL",
-                                      "MasterBlastR" = "MASTERBLASTR",
+                                      #"MasterBlastR" = "MASTERBLASTR",
                                       "WGS Metrics" = "LW_METRICS"),
                        selected = "AMR")),
 
@@ -101,7 +101,7 @@ ui <- fluidPage(
                                       "16S rRNA" = "rRNA16S",
                                       "SeroTypR" = "SERO",
                                       "All Routine Analyses" = "ALL",
-                                      "MasterBlastR" = "MASTERBLASTR",
+                                      #"MasterBlastR" = "MASTERBLASTR",
                                       "WGS Metrics" = "LW_METRICS"),
                        selected = "AMR")),
 
@@ -115,7 +115,7 @@ ui <- fluidPage(
                                       "SeroTypR" = "SERO",
                                       "Virulence Factors" = "VIRULENCE",
                                       "All Routine Analyses" = "ALL",
-                                      "MasterBlastR" = "MASTERBLASTR",
+                                      #"MasterBlastR" = "MASTERBLASTR",
                                       "WGS Metrics" = "LW_METRICS"),
                        selected = "AMR_ALL")),
 
@@ -206,6 +206,7 @@ server <- function(input, output) {
              NGMAST={output.df <- MLST_pipeline(input$Org, "NGMAST", input$sample, input$locus, curr_work_dir)},
              rRNA23S={output.df <- rRNA23S_pipeline(input$Org, input$sample, curr_work_dir)},
              LW_METRICS={output.df <- metrics(input$Org, curr_work_dir)},
+             AMR={output.df <- MASTER_pipeline(input$Org, input$test, input$sample, input$locus, curr_work_dir)},
              AMR_ALL={output.df <- MASTER_pipeline(input$Org, "AMR_ALL", input$sample, "list", curr_work_dir)
                       output.df <- MLST_pipeline(input$Org, "NGSTAR_AMR", input$sample, input$locus, curr_work_dir)
                       output.df <- rRNA23S_pipeline(input$Org, input$sample, curr_work_dir)

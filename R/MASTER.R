@@ -278,7 +278,7 @@ MASTER_pipeline <- function(Org_id, Test_id, SampleNo, LocusID, curr_work_dir){
                                    " -out ", directorylist$temp_dir, "blastout2.txt", 
                                    " -evalue ", evalue_allele, 
                                    " -num_alignments 1")
-            shell(BlastCommand, intern = TRUE)
+            system(BlastCommand, intern = TRUE)
         
             blastoutput2 <- readLines(paste0(directorylist$temp_dir, "blastout2.txt"))
 

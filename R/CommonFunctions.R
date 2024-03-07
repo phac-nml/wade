@@ -118,7 +118,7 @@ blastquery <- function(directorylist, reflist, CurrLocus, Blast_evalue){
                         " -db ", LocusLkupDNA,
                         " -out ", Blast_Out_File,
                         " -num_alignments 100 -evalue ", Blast_evalue, " -outfmt 6")
-  shell(BlastCommand)
+  system(BlastCommand)
   return(Blast_Out_File)
 }
 
@@ -129,7 +129,7 @@ blasthits <- function(reflist, directorylist, LocusFile, Blast_evalue){
                          " -db ", reflist$DestFile, 
                          " -out ", directorylist$temp_dir, "blastout.txt ", 
                          "-evalue ", Blast_evalue)
-  shell(BlastCommand)
+  system(BlastCommand)
   blastoutput <- readLines(paste0(directorylist$temp_dir, "blastout.txt"))
 
   #check if gene was found in BLAST
