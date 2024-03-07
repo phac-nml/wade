@@ -25,9 +25,9 @@ getdirectory <- function(curr_work_dir, Org_id, Test_id){
   Directories.df <- as_tibble(read.csv(dir_file, header = TRUE, sep = ",", stringsAsFactors = FALSE)) %>%
     filter(OrgID == Org_id)
   SampleList <- paste0(Directories.df$LocalDir, "list.csv")
-  output_dir <- paste0(Directories.df$LocalDir, "Output\\")
-  temp_dir <- paste0(Directories.df$LocalDir, "temp\\")
-  ref_dir <- paste0(Directories.df$LocalDir, "reference\\")
+  output_dir <- paste0(Directories.df$LocalDir, "Output/")
+  temp_dir <- paste0(Directories.df$LocalDir, "temp/")
+  ref_dir <- paste0(Directories.df$LocalDir, "reference/")
   system_dir <- Directories.df$SystemDir
   contigs_dir <- Directories.df$ContigsDir
   vcf_dir <- Directories.df$VCFDir
@@ -46,9 +46,9 @@ getdirectory <- function(curr_work_dir, Org_id, Test_id){
 #' @export
 # get reference files structure
 refdirectory <- function(directorylist, Org_id, Test_id){
-  Lkup_Dir <- paste0(directorylist$system_dir, Org_id, "\\", Test_id, "\\allele_lkup_dna\\")
-  Ref_Dir <- paste0(directorylist$system_dir, Org_id, "\\", Test_id, "\\reference\\")
-  WT_Dir <- paste0(directorylist$system_dir, Org_id, "\\", Test_id, "\\wildgenes\\")
+  Lkup_Dir <- paste0(directorylist$system_dir, Org_id, "/", Test_id, "/allele_lkup_dna/")
+  Ref_Dir <- paste0(directorylist$system_dir, Org_id, "/", Test_id, "/reference/")
+  WT_Dir <- paste0(directorylist$system_dir, Org_id, "/", Test_id, "/wildgenes/")
   Loci_List <- paste0(Ref_Dir, "loci.csv")
   Profiles <- paste0(Ref_Dir, "profiles.txt")
   DestFile <- paste0(directorylist$temp_dir, "queryfile.fasta")
@@ -65,10 +65,10 @@ refdirectory <- function(directorylist, Org_id, Test_id){
 #' @export
 # remove old DNA output files
 removefiles <- function(curr_work_dir){
-  unlink(paste0(curr_work_dir, "Output\\output_dna.fasta")) #this deletes the file!
-  unlink(paste0(curr_work_dir, "Output\\output_dna_notfound.fasta"))
-  unlink(paste0(curr_work_dir, "Output\\output_dna_notfound_distinct.fasta"))
-  unlink(paste0(curr_work_dir, "Output\\output_aa.fasta"))
+  unlink(paste0(curr_work_dir, "Output/output_dna.fasta")) #this deletes the file!
+  unlink(paste0(curr_work_dir, "Output/output_dna_notfound.fasta"))
+  unlink(paste0(curr_work_dir, "Output/output_dna_notfound_distinct.fasta"))
+  unlink(paste0(curr_work_dir, "Output/output_aa.fasta"))
 }
 
 #' @export

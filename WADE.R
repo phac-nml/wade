@@ -18,7 +18,7 @@ library(WADE)  #installed from github
 
 #USER INPUT: set location of working directory where system, lookup, mapping, init files
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-curr_work_dir <- "C:\\WADE\\"
+curr_work_dir <- "C:/WADE/"
 #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # Define UI ---------------------------------------------------------------------------------------
@@ -305,7 +305,7 @@ server <- function(input, output) {
       )
     }
 
-    unlink(paste0(curr_work_dir, "Output\\output_profile.csv"))
+    unlink(paste0(curr_work_dir, "Output/output_profile.csv"))
     write.csv(output.df, paste0(curr_work_dir, "Output\\output_profile.csv"), row.names = F)
 
     output$profile_table <- renderDataTable({output.df})
@@ -315,7 +315,7 @@ server <- function(input, output) {
   {
     if(input$locus == "list")
     {
-      shell.exec(paste0(curr_work_dir, "Output\\output_profile.csv"))
+      shell.exec(paste0(curr_work_dir, "Output/output_profile.csv"))
     }
   })
 
