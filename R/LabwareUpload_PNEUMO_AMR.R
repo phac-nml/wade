@@ -34,7 +34,7 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
   NumLoci <- ((dim(Combined_Output.df)[2]-3) / 7)
 
   # Load MIC chart for WGS MIC calculations
-  MIC_table <- as_tibble(read.csv(paste0(directorylist$system_dir, "PNEUMO\\AMR\\reference\\MIC_table.csv"),
+  MIC_table <- as_tibble(read.csv(paste0(directorylist$system_dir, "PNEUMO/AMR/reference/MIC_table.csv"),
                                   header = TRUE, sep = ",", stringsAsFactors = FALSE))
 
   m <- 1

@@ -45,7 +45,7 @@ labware_gono_amr <- function(Org_id, curr_work_dir) {
   NumSamples <- dim(Combined_Output.df)[1]
 
   # Load MIC chart for WGS MIC calculations
-  MIC_table <- as_tibble(read.csv(paste0(directorylist$system_dir, "GONO\\AMR\\reference\\MIC_table.csv"),
+  MIC_table <- as_tibble(read.csv(paste0(directorylist$system_dir, "GONO/AMR/reference/MIC_table.csv"),
                                   header = TRUE, sep = ",", stringsAsFactors = FALSE))
 
   # ----------------------------------------------------------------------------

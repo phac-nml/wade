@@ -94,7 +94,7 @@ rRNA23S_pipeline <- function(Org_id, SampleNo, curr_work_dir) {
     A2059G <- 99L
     C2611T <- 99L
     CurrSampleNo <- as.character(SampleList.df[m, "SampleNo"])
-    QueryFile <- paste(directorylist$vcf_dir, "\\", CurrSampleNo, ".vcf", sep = "")
+    QueryFile <- paste(directorylist$vcf_dir, "/", CurrSampleNo, ".vcf", sep = "")
 
     if(!file.exists(QueryFile))
     {
