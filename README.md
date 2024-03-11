@@ -51,7 +51,7 @@ and the use of the BLAST+ executable from NCBI: <https://blast.ncbi.nlm.nih.gov/
     b.  clone the wade git repository into a directory and run the following:
 
     ``` sh
-    install.packages("C:\\path\\to\GitHub\\wade", repos=NULL, type="source") 
+    install.packages("C:/path/to/GitHub/wade", repos=NULL, type="source") 
     ```
 
 4.  Install required packages
@@ -82,32 +82,32 @@ and the use of the BLAST+ executable from NCBI: <https://blast.ncbi.nlm.nih.gov/
 
 ## Setup
 
-Copy the [WADE](WADE) directory from the github/wade folder into the C:/ drive\
+Copy the [WADE](WADE) directory from the github/wade folder into the location from where you would like to run the program eg) C:/ drive\
 OR\
 Set up the following directory
 
 ``` sh
-C:/WADE
+C:/WADE/
 ```
 
 with two subdirectories:
 
 ``` sh
-C:/WADE/Output  
-C:/WADE/temp  
+C:/WADE/Output/  
+C:/WADE/temp/  
 ```
 
 This molecular analysis tool queries pre-assembled fasta files. The location of the contig files, vcf files, and wade data files need to be listed in "DirectoryLocations.csv" in the line for the corresponding organism ID:
 
 -   **OrgID** = The organism being queried. *NOTE: Do not edit this column*
--   **LocalDir** = C:\\WADE\\
+-   **LocalDir** = The drive from which you're running WADE eg) C:/WADE/
 -   **SystemDir** = The directory in which the local wade-data files are saved
 -   **ContigsDir** = The directory in which contigs are saved
 -   **VCFDir** = The directory in which vcf files are saved (GONO and PNEUMO Only)
 
 The contig files must have the file extension".fasta" (eg. MySampleNo_contig.fasta).
 
-To use the multiple sample list option, a sample list file must be located at: C:/WADE/list.csv list.csv must have the following structure:
+To use the multiple sample list option, a sample list file must be located in the WADE folder eg) C:/WADE/list.csv. list.csv must have the following structure:
 
 | SampleNo | Variable |
 |----------|----------|
@@ -120,7 +120,7 @@ To use the multiple sample list option, a sample list file must be located at: C
 2.  change the current working directory in WADE.R to the folder where your "DirectoryLocations.csv" file and Output and temp subdirectories are located.
 
 ``` sh
-Line 20: curr_work_dir <- "C:\\WADE\\"
+Line 20: curr_work_dir <- "C:/WADE/"
 ```
 
 3.  Click on the "Run App" button
