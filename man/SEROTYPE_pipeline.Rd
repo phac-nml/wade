@@ -3,7 +3,7 @@
 \name{SEROTYPE_pipeline}
 \alias{SEROTYPE_pipeline}
 \title{Serotyping pipeline for WGS assemblies
-December 21 2023, Walter Demczuk & Shelley Peterson}
+February 5 2024, Walter Demczuk & Shelley Peterson}
 \usage{
 SEROTYPE_pipeline(Org_id, SampleNo, LocusID, Test_id, curr_work_dir)
 }

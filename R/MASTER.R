@@ -1,5 +1,5 @@
 #' Molecular typing pipeline for WGS assemblies
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3 2024, Walter Demczuk & Shelley Peterson
 #'
 #' Takes Organism, Sample Number, Locus, to query a contig.fasta file
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
@@ -278,7 +278,7 @@ MASTER_pipeline <- function(Org_id, Test_id, SampleNo, LocusID, curr_work_dir){
                                    " -out ", directorylist$temp_dir, "blastout2.txt", 
                                    " -evalue ", evalue_allele, 
                                    " -num_alignments 1")
-            shell(BlastCommand, intern = TRUE)
+            system(BlastCommand, intern = TRUE)
         
             blastoutput2 <- readLines(paste0(directorylist$temp_dir, "blastout2.txt"))
 

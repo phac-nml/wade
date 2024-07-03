@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for PNEUMO AMR
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3 2024, Walter Demczuk & Shelley Peterson
 #' Run AMR first, then run the 23S allele counts,
 #' Then run this analysis to combine data from AMR, 23S rRNA
 #' to prepare full amr profile to upload to LabWare.
@@ -34,7 +34,7 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
   NumLoci <- ((dim(Combined_Output.df)[2]-3) / 7)
 
   # Load MIC chart for WGS MIC calculations
-  MIC_table <- as_tibble(read.csv(paste0(directorylist$system_dir, "PNEUMO\\AMR\\reference\\MIC_table.csv"),
+  MIC_table <- as_tibble(read.csv(paste0(directorylist$system_dir, "PNEUMO/AMR/reference/MIC_table.csv"),
                                   header = TRUE, sep = ",", stringsAsFactors = FALSE))
 
   m <- 1

@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for GAS AMR
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3, 2024, Walter Demczuk & Shelley Peterson
 #' Run AMR first
 #' Then run this analysis to combine data the full amr profile to upload to LabWare.
 #'
@@ -226,25 +226,22 @@ labware_gas_amr <- function(Org_id, curr_work_dir) {
         cli_MIC <- ">= 1 ug/ml"
         cli <- "Resistant"
         cli_AMR <- "CLI-R"
-      }else
-      {
-        cli_MIC <- "<= 0.12 ug/ml"
-        cli <-"Susceptible"
-        cli_AMR <- NA
-      }
-
-      if(str_detect(molec_profile, "ermB N100S"))
-      {
-        cli_MIC <- "<= 0.12 ug/ml"
-        cli <- "Susceptible"
-        cli_AMR <- NA
-      }
-
-      if(str_detect(molec_profile, "ermA S"))
+        if(str_detect(molec_profile, "ermB N100S") & !str_detect(molec_profile, "ermA R"))
+        {
+          cli_MIC <- "<= 0.12 ug/ml"
+          cli <- "Susceptible"
+          cli_AMR <- NA
+        }
+      }else if(str_detect(molec_profile, paste(c("ermA S", "ermT"), collapse = '|')))
       {
         cli_MIC <- "<= 0.12 ug/ml"
         cli <- "Inducible"
         cli_AMR <- "CLI-Ind"
+      } else
+      {
+        cli_MIC <- "<= 0.12 ug/ml"
+        cli <-"Susceptible"
+        cli_AMR <- NA
       }
 
       ##### Chloramphenicol (CHL) #####

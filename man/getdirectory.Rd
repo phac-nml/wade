@@ -3,7 +3,7 @@
 \name{getdirectory}
 \alias{getdirectory}
 \title{Common helper functions for WADE analysis
-December 21 2023, Shelley Peterson}
+July 3, 2024, Shelley Peterson}
 \usage{
 getdirectory(curr_work_dir, Org_id, Test_id)
 }
@@ -41,7 +41,7 @@ a dataframe or list to be fed into other WADE functions
 }
 \description{
 Common helper functions for WADE analysis
-December 21 2023, Shelley Peterson
+July 3, 2024, Shelley Peterson
 }
 \details{
 These are helper functions to streamline the other WADE functions

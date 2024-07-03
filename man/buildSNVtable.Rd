@@ -3,7 +3,7 @@
 \name{buildSNVtable}
 \alias{buildSNVtable}
 \title{M1UK typing pipeline from WGS SNVPhyl M1UK Analysis
-December 21 2023, Walter Demczuk & Shelley Peterson}
+July 3, 2024, Walter Demczuk & Shelley Peterson}
 \usage{
 buildSNVtable(SNVTable, SNPList, pattern_ref)
 }
@@ -21,7 +21,7 @@ A table frame containing the results of the query
 }
 \description{
 M1UK typing pipeline from WGS SNVPhyl M1UK Analysis
-December 21 2023, Walter Demczuk & Shelley Peterson
+July 3, 2024, Walter Demczuk & Shelley Peterson
 }
 \details{
 GAS emm1 M1UK typing:

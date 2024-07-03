@@ -3,7 +3,7 @@
 \name{rename_submitted}
 \alias{rename_submitted}
 \title{Renames submitted contig files to NML LabWare numbers
-2024-01-26, Walter Demczuk & Shelley Peterson}
+February 5 2024, Walter Demczuk & Shelley Peterson}
 \usage{
 rename_submitted(Org_id, curr_work_dir)
 }

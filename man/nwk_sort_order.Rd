@@ -3,7 +3,7 @@
 \name{nwk_sort_order}
 \alias{nwk_sort_order}
 \title{Gets the sort order for samples from a newick tree file.
-December 21 2023, Walter Demczuk & Shelley Peterson}
+February 5 2024, Walter Demczuk & Shelley Peterson}
 \usage{
 nwk_sort_order(Org_id, curr_work_dir)
 }

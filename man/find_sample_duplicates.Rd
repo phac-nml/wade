@@ -3,7 +3,7 @@
 \name{find_sample_duplicates}
 \alias{find_sample_duplicates}
 \title{Duplicate Samples Finder
-December 21 2023, Walter Demczuk & Shelley Peterson}
+February 5 2024, Walter Demczuk & Shelley Peterson}
 \usage{
 find_sample_duplicates(Org_id, curr_work_dir)
 }
@@ -15,7 +15,7 @@ A table frame containing the results of the query
 }
 \description{
 Duplicate Samples Finder
-December 21 2023, Walter Demczuk & Shelley Peterson
+February 5 2024, Walter Demczuk & Shelley Peterson
 }
 \details{
 Return duplicate samples

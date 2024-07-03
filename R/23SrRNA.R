@@ -1,5 +1,5 @@
 #' 23S rRNA pipeline for WGS assemblies to determine number of mutated alleles
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3 2024, Walter Demczuk & Shelley Peterson
 #'
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param SampleNo Sample number or "list" or "folder" of sample numbers associated with VCF file(s)
@@ -94,7 +94,7 @@ rRNA23S_pipeline <- function(Org_id, SampleNo, curr_work_dir) {
     A2059G <- 99L
     C2611T <- 99L
     CurrSampleNo <- as.character(SampleList.df[m, "SampleNo"])
-    QueryFile <- paste(directorylist$vcf_dir, "\\", CurrSampleNo, ".vcf", sep = "")
+    QueryFile <- paste(directorylist$vcf_dir, "/", CurrSampleNo, ".vcf", sep = "")
 
     if(!file.exists(QueryFile))
     {

@@ -1,5 +1,5 @@
 # Updates fasta lookup tables
-#' February 5 2024, Shelley Peterson
+#' July 3, 2024, Shelley Peterson
 #'
 #' Downloads lookup table data from URLs
 #'
@@ -24,79 +24,77 @@ update_lookups <- function(Org_Test, curr_work_dir){
   reflist <- refdirectory(directorylist, Org_id, Test_id)
   
   switch(Org_Test,
-         GONO_MLST={download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=abcZ", 
+         GONO_MLST={download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/abcZ/alleles_fasta", 
                                   paste0(reflist$Lkup_Dir, "abcZ.fasta"), mode = "wb")
-                    download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=adk", 
+                    download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/adk/alleles_fasta", 
                                   paste0(reflist$Lkup_Dir, "adk.fasta"), mode = "wb")
-                    download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=aroE", 
+                    download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/aroE/alleles_fasta", 
                                   paste0(reflist$Lkup_Dir, "aroE.fasta"), mode = "wb")
-                    download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=fumC", 
+                    download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/fumC/alleles_fasta", 
                                   paste0(reflist$Lkup_Dir, "fumC.fasta"), mode = "wb")
-                    download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=gdh", 
+                    download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/gdh/alleles_fasta", 
                                   paste0(reflist$Lkup_Dir, "gdh.fasta"), mode = "wb")
-                    download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=pdhC", 
+                    download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/pdhC/alleles_fasta", 
                                   paste0(reflist$Lkup_Dir, "pdhC.fasta"), mode = "wb")
-                    download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=pgm", 
+                    download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/pgm/alleles_fasta", 
                                   paste0(reflist$Lkup_Dir, "pgm.fasta"), mode = "wb")
-                    download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadProfiles&scheme_id=1", 
+                    download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/schemes/1/profiles_csv", 
                                   paste0(reflist$Ref_Dir, "profiles.txt"), mode = "wb")},
-         GONO_NGMAST={download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=NG-MAST_porB", 
+         GONO_NGMAST={download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/NG-MAST_porB/alleles_fasta", 
                                     paste0(reflist$Lkup_Dir, "porB.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadAlleles&locus=NG-MAST_tbpB", 
+                      download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/loci/NG-MAST_tbpB/alleles_fasta", 
                                     paste0(reflist$Lkup_Dir, "tbpB.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_neisseria_seqdef&page=downloadProfiles&scheme_id=71", 
+                      download.file("https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/schemes/71/profiles_csv", 
                                     paste0(reflist$Ref_Dir, "profiles.txt"), mode = "wb")},
-         GAS_MLST={download.file("https://pubmlst.org/bigsdb?db=pubmlst_spyogenes_seqdef&page=downloadAlleles&locus=gki", 
+         GAS_MLST={download.file("https://rest.pubmlst.org/db/pubmlst_spyogenes_seqdef/loci/gki/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "gki.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_spyogenes_seqdef&page=downloadAlleles&locus=gtr", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_spyogenes_seqdef/loci/gtr/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "gtr.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_spyogenes_seqdef&page=downloadAlleles&locus=murI", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_spyogenes_seqdef/loci/murI/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "murI.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_spyogenes_seqdef&page=downloadAlleles&locus=mutS", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_spyogenes_seqdef/loci/mutS/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "mutS.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_spyogenes_seqdef&page=downloadAlleles&locus=recP", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_spyogenes_seqdef/loci/recP/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "recP.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_spyogenes_seqdef&page=downloadAlleles&locus=xpt", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_spyogenes_seqdef/loci/xpt/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "xpt.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_spyogenes_seqdef&page=downloadAlleles&locus=yqiL", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_spyogenes_seqdef/loci/yqiL/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "yqiL.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_spyogenes_seqdef&page=downloadProfiles&scheme_id=1", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_spyogenes_seqdef/schemes/1/profiles_csv", 
                                  paste0(reflist$Ref_Dir, "profiles.txt"), mode = "wb")},
          GAS_EMM={download.file("https://ftp.cdc.gov/pub/infectious_diseases/biotech/tsemm/alltrimmed.tfa", 
                                 paste0(reflist$Lkup_Dir, "emm_trimmed.fasta"), mode = "wb")},
-         GBS_MLST={download.file("https://pubmlst.org/bigsdb?db=pubmlst_sagalactiae_seqdef&page=downloadAlleles&locus=adhP", 
+         GBS_MLST={download.file("https://rest.pubmlst.org/db/pubmlst_sagalactiae_seqdef/loci/adhP/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "adhP.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_sagalactiae_seqdef&page=downloadAlleles&locus=pheS", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_sagalactiae_seqdef/loci/pheS/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "pheS.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_sagalactiae_seqdef&page=downloadAlleles&locus=atr", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_sagalactiae_seqdef/loci/atr/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "atr.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_sagalactiae_seqdef&page=downloadAlleles&locus=glnA", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_sagalactiae_seqdef/loci/glnA/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "glnA.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_sagalactiae_seqdef&page=downloadAlleles&locus=sdhA", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_sagalactiae_seqdef/loci/sdhA/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "sdhA.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_sagalactiae_seqdef&page=downloadAlleles&locus=glcK", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_sagalactiae_seqdef/loci/glcK/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "glcK.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_sagalactiae_seqdef&page=downloadAlleles&locus=tkt", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_sagalactiae_seqdef/loci/tkt/alleles_fasta", 
                                  paste0(reflist$Lkup_Dir, "tkt.fasta"), mode = "wb")
-                   download.file("https://pubmlst.org/bigsdb?db=pubmlst_sagalactiae_seqdef&page=downloadProfiles&scheme_id=1", 
+                   download.file("https://rest.pubmlst.org/db/pubmlst_sagalactiae_seqdef/schemes/1/profiles_csv", 
                                  paste0(reflist$Ref_Dir, "profiles.txt"), mode = "wb")},
-         PNEUMO_MLST={download.file("https://pubmlst.org/bigsdb?db=pubmlst_sagalactiae_seqdef&page=downloadAlleles&locus=adhP", 
-                                    paste0(reflist$Lkup_Dir, "adhP.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_spneumoniae_seqdef&page=downloadAlleles&locus=aroE", 
+         PNEUMO_MLST={download.file("https://rest.pubmlst.org/db/pubmlst_spneumoniae_seqdef/loci/aroE/alleles_fasta", 
                                     paste0(reflist$Lkup_Dir, "aroE.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_spneumoniae_seqdef&page=downloadAlleles&locus=gdh", 
+                      download.file("https://rest.pubmlst.org/db/pubmlst_spneumoniae_seqdef/loci/gdh/alleles_fasta", 
                                     paste0(reflist$Lkup_Dir, "gdh.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_spneumoniae_seqdef&page=downloadAlleles&locus=gki", 
+                      download.file("https://rest.pubmlst.org/db/pubmlst_spneumoniae_seqdef/loci/gki/alleles_fasta", 
                                     paste0(reflist$Lkup_Dir, "gki.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_spneumoniae_seqdef&page=downloadAlleles&locus=recP", 
+                      download.file("https://rest.pubmlst.org/db/pubmlst_spneumoniae_seqdef/loci/recP/alleles_fasta", 
                                     paste0(reflist$Lkup_Dir, "recP.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_spneumoniae_seqdef&page=downloadAlleles&locus=spi", 
+                      download.file("https://rest.pubmlst.org/db/pubmlst_spneumoniae_seqdef/loci/spi/alleles_fasta", 
                                     paste0(reflist$Lkup_Dir, "spi.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_spneumoniae_seqdef&page=downloadAlleles&locus=xpt", 
+                      download.file("https://rest.pubmlst.org/db/pubmlst_spneumoniae_seqdef/loci/xpt/alleles_fasta", 
                                     paste0(reflist$Lkup_Dir, "xpt.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_spneumoniae_seqdef&page=downloadAlleles&locus=ddl", 
+                      download.file("https://rest.pubmlst.org/db/pubmlst_spneumoniae_seqdef/loci/ddl/alleles_fasta", 
                                     paste0(reflist$Lkup_Dir, "ddl.fasta"), mode = "wb")
-                      download.file("https://pubmlst.org/bigsdb?db=pubmlst_spneumoniae_seqdef&page=downloadProfiles&scheme_id=1", 
+                      download.file("https://rest.pubmlst.org/db/pubmlst_spneumoniae_seqdef/schemes/1/profiles_csv", 
                                     paste0(reflist$Ref_Dir, "profiles.txt"), mode = "wb")}
   )
 

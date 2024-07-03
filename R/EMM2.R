@@ -1,5 +1,5 @@
 #' M1UK typing pipeline from WGS SNVPhyl M1UK Analysis
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3, 2024, Walter Demczuk & Shelley Peterson
 #'
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param variant M1UK or M1DK - which SNP list should be referenced
@@ -109,6 +109,10 @@ EMM_V_pipeline <- function(Org_id, variant, curr_work_dir){
   # assign genotype
   SNVTable <- variantgenotype(SNVTable, nchar(pattern_ref), variant)
   SNVTable <- filter(SNVTable, SampleNo != "Reference")
+  
+  # fix intermediates with 1-4 "-" so they're called WT
+  SNVTable$Genotype[str_detect(SNVTable$Genotype, "Intermediate \\([1-4]\\)") &
+                    str_detect(SNVTable$SNVprofile, "-")] <- "Global"
   
   ############################## Export Results ################################
   # Make multi-fasta file of the genome positions for each sample

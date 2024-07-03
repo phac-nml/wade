@@ -3,7 +3,7 @@
 \name{MLST_pipeline}
 \alias{MLST_pipeline}
 \title{MLST pipeline for WGS assemblies
-December 21 2023, Walter Demczuk & Shelley Peterson}
+July 3, 2024, Walter Demczuk & Shelley Peterson}
 \usage{
 MLST_pipeline(Org_id, Test_id, SampleNo, LocusID, curr_work_dir)
 }

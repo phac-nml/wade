@@ -1,5 +1,5 @@
 #' Makeblastdb.R indexes Blast fasta databases
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3, 2024, Walter Demczuk & Shelley Peterson
 #' 
 #' Index BLAST fasta datases of lookup data
 #'
@@ -33,7 +33,7 @@ MakeblastDB_pipeline <- function(Org_id, Test_id, LocusID, curr_work_dir){
   
   #-----------------------------------------------------------------------------
 
-  if(Test_id %in% c("rRNA23S", "TOXINS_R"))
+  if(Test_id %in% c("rRNA23S", "TOXINS"))
   {
     cat("No indexing required for", Test_id)
     done_signal.df <- tibble(Output = "No indexing required.")

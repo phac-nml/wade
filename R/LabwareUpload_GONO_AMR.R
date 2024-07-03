@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for GONO AMR
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3 2024, Walter Demczuk & Shelley Peterson
 #' #' Run AMR first, then run the 23S allele counts, and then the NGSTAR-MLST analyses
 #' Then run this analysis to combine data from AMR, 23S rRNA and NG-STAR
 #' to prepare full amr profile to upload to LabWare.
@@ -45,7 +45,7 @@ labware_gono_amr <- function(Org_id, curr_work_dir) {
   NumSamples <- dim(Combined_Output.df)[1]
 
   # Load MIC chart for WGS MIC calculations
-  MIC_table <- as_tibble(read.csv(paste0(directorylist$system_dir, "GONO\\AMR\\reference\\MIC_table.csv"),
+  MIC_table <- as_tibble(read.csv(paste0(directorylist$system_dir, "GONO/AMR/reference/MIC_table.csv"),
                                   header = TRUE, sep = ",", stringsAsFactors = FALSE))
 
   # ----------------------------------------------------------------------------
