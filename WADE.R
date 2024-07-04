@@ -218,6 +218,7 @@ server <- function(input, output) {
 
   observeEvent(input$action,
   {
+    #remove previous WADE output fasta files
     removefiles(curr_work_dir)
     if(input$Org == "GONO")
     {
