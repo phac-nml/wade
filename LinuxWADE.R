@@ -20,6 +20,7 @@ library(WADE)
 curr_work_dir <- "~/Documents/WADE/"
 #-------------------------------------------------------------------------------
 
+#remove previous WADE output fasta files
 removefiles(curr_work_dir)
 
 MASTER_pipeline("GAS", "AMR", "list", "list", curr_work_dir)
