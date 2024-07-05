@@ -1,5 +1,5 @@
 #' Common helper functions for WADE analysis
-#' February 5, 2024, Shelley Peterson
+#' July 3, 2024, Shelley Peterson
 #' 
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param Test_id AMR, TOXINS, VIRULENCE, NGSTAR, use MASTER for 16S id

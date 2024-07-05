@@ -3,7 +3,7 @@
 \name{proximity_test}
 \alias{proximity_test}
 \title{Detects potententially contaminated samples based on plate proximity
-December 21 2023, Shelley Peterson
+February 5 2024, Shelley Peterson
 Run labware_GONO_AMR first, then run this analysis to evaluate sample proximity}
 \usage{
 proximity_test(Org_id, curr_work_dir)
@@ -18,6 +18,6 @@ A table frame containing the results of the query
 }
 \description{
 Detects potententially contaminated samples based on plate proximity
-December 21 2023, Shelley Peterson
+February 5 2024, Shelley Peterson
 Run labware_GONO_AMR first, then run this analysis to evaluate sample proximity
 }

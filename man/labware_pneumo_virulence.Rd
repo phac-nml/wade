@@ -3,7 +3,7 @@
 \name{labware_pneumo_virulence}
 \alias{labware_pneumo_virulence}
 \title{Labware Upload Formatter for PNEUMO VIRULENCE
-December 21 2023, Walter Demczuk & Shelley Peterson
+February 5 2024, Walter Demczuk & Shelley Peterson
 run MasterBlastR first, then this script outputs csv to LabWareUpload_GAS_TOXINS.csv in Output folder}
 \usage{
 labware_pneumo_virulence(Org_id, curr_work_dir)

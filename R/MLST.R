@@ -1,5 +1,5 @@
 #' MLST pipeline for WGS assemblies
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3, 2024, Walter Demczuk & Shelley Peterson
 #'
 #' Takes Organism, Sample Number, Locus, and a Variable at queries a contig.fasta file
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
@@ -14,11 +14,11 @@
 
 #-------------------------------------------------------------------------------
 #  For troubleshooting and debugging
- # Org_id <- "GONO"                  #GAS, GBS, PNEUMO or GONO
- # SampleNo <- "list"
- # LocusID <- "list"
- # Test_id <- "NGMAST"               #NGSTAR, NGMAST, MLST, NGSTAR_AMR
- # curr_work_dir <- "C:\\WADE\\"
+#  Org_id <- "GONO"                  #GAS, GBS, PNEUMO or GONO
+#  SampleNo <- "list"
+#  LocusID <- "list"
+#  Test_id <- "NGSTAR"               #NGSTAR, NGMAST, MLST, NGSTAR_AMR
+#  curr_work_dir <- "C:\\WADE\\"
  # Blast_evalue <- "10e-50"          #sets sensitivity of Blast gene match 10e-50 to 10e-150; use 10e-5 for primers
 #-------------------------------------------------------------------------------
 
@@ -143,15 +143,15 @@ MLST_pipeline <- function(Org_id, Test_id, SampleNo, LocusID, curr_work_dir) {
   # Lookup ST profiles
   ##############################################################################
 
-  #if(Test_id == "NGSTAR")
-  #{
-  #  profiles.df <- profiles.df %>% rename("rRNA23S" = X23S)
-  #}
   if(Test == "NGSTAR_AMR" | LocusID != "list")
   {
     Output <- Output.df
   }else
   {
+    if(Test_id == "NGSTAR")
+    {
+      profiles.df <- profiles.df %>% dplyr::rename("rRNA23S" = "X23S")
+    }
     profiles.df <- profiles.df %>% dplyr::mutate(across(everything(), as.character))
     Output <- left_join(Output.df, profiles.df)
     Output$clonal_complex <- NA

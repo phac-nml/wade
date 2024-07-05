@@ -1,5 +1,5 @@
 #' 23S rRNA pipeline for WGS assemblies to determine number of mutated alleles
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3 2024, Walter Demczuk & Shelley Peterson
 #'
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param SampleNo Sample number or "list" or "folder" of sample numbers associated with VCF file(s)

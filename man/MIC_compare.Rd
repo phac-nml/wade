@@ -3,7 +3,7 @@
 \name{MIC_compare}
 \alias{MIC_compare}
 \title{Detects potententially contaminated samples based on plate proximity
-January 5, 2024, Shelley Peterson
+February 5, 2024, Shelley Peterson
 Run this analysis to evaluate consistency of MIC results}
 \usage{
 MIC_compare(curr_work_dir)
@@ -16,6 +16,6 @@ A table frame containing the results of the query
 }
 \description{
 Detects potententially contaminated samples based on plate proximity
-January 5, 2024, Shelley Peterson
+February 5, 2024, Shelley Peterson
 Run this analysis to evaluate consistency of MIC results
 }

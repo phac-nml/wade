@@ -1,5 +1,5 @@
 #' Molecular typing pipeline for WGS assemblies
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3 2024, Walter Demczuk & Shelley Peterson
 #'
 #' Takes Organism, Sample Number, Locus, to query a contig.fasta file
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO

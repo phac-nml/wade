@@ -3,7 +3,7 @@
 \name{labware_gbs_amr}
 \alias{labware_gbs_amr}
 \title{Labware Upload Formatter for GBS AMR
-December 21 2023, Walter Demczuk & Shelley Peterson
+February 5 2024, Walter Demczuk & Shelley Peterson
 Run AMR first
 Then run this analysis to combine data the full amr profile to upload to LabWare.}
 \usage{
@@ -19,7 +19,7 @@ A table frame containing the results of the query
 }
 \description{
 Labware Upload Formatter for GBS AMR
-December 21 2023, Walter Demczuk & Shelley Peterson
+February 5 2024, Walter Demczuk & Shelley Peterson
 Run AMR first
 Then run this analysis to combine data the full amr profile to upload to LabWare.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/UpdateLookups.R
 \name{update_lookups}
 \alias{update_lookups}
-\title{December 21 2023, Shelley Peterson}
+\title{July 3, 2024, Shelley Peterson}
 \usage{
 update_lookups(Org_Test, curr_work_dir)
 }

@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for PNEUMO AMR
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' July 3 2024, Walter Demczuk & Shelley Peterson
 #' Run AMR first, then run the 23S allele counts,
 #' Then run this analysis to combine data from AMR, 23S rRNA
 #' to prepare full amr profile to upload to LabWare.

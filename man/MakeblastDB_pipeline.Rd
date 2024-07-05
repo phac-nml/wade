@@ -3,7 +3,7 @@
 \name{MakeblastDB_pipeline}
 \alias{MakeblastDB_pipeline}
 \title{Makeblastdb.R indexes Blast fasta databases
-December 21 2023, Walter Demczuk & Shelley Peterson}
+July 3, 2024, Walter Demczuk & Shelley Peterson}
 \usage{
 MakeblastDB_pipeline(Org_id, Test_id, LocusID, curr_work_dir)
 }

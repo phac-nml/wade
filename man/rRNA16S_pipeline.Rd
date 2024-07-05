@@ -3,7 +3,7 @@
 \name{rRNA16S_pipeline}
 \alias{rRNA16S_pipeline}
 \title{16SrRNA Pipeline
-December 21 2023, Walter Demczuk & Shelley Peterson
+February 5 2024, Walter Demczuk & Shelley Peterson
 Run this analysis to combine data output MasterBlastR profile to upload to LabWare.}
 \usage{
 rRNA16S_pipeline(Org_id, curr_work_dir)
@@ -18,6 +18,6 @@ A table frame containing the results of the query
 }
 \description{
 16SrRNA Pipeline
-December 21 2023, Walter Demczuk & Shelley Peterson
+February 5 2024, Walter Demczuk & Shelley Peterson
 Run this analysis to combine data output MasterBlastR profile to upload to LabWare.
 }

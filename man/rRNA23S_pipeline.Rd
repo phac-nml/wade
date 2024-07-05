@@ -3,7 +3,7 @@
 \name{rRNA23S_pipeline}
 \alias{rRNA23S_pipeline}
 \title{23S rRNA pipeline for WGS assemblies to determine number of mutated alleles
-December 21 2023, Walter Demczuk & Shelley Peterson}
+July 3 2024, Walter Demczuk & Shelley Peterson}
 \usage{
 rRNA23S_pipeline(Org_id, SampleNo, curr_work_dir)
 }
@@ -19,7 +19,7 @@ A table frame containing the results of the query
 }
 \description{
 23S rRNA pipeline for WGS assemblies to determine number of mutated alleles
-December 21 2023, Walter Demczuk & Shelley Peterson
+July 3 2024, Walter Demczuk & Shelley Peterson
 }
 \details{
 23S rRNA pipeline for WGS assemblies to determine number of mutated alleles
