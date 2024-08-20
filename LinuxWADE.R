@@ -24,7 +24,7 @@ curr_work_dir <- "~/Documents/WADE/"
 removefiles(curr_work_dir)
 
 MASTER_pipeline("GAS", "AMR", "list", "list", curr_work_dir)
-labware_GAS_amr("GAS", curr_work_dir)
+labware_gas_amr("GAS", curr_work_dir)
 MLST_pipeline("GAS", "MLST", "list", "list", curr_work_dir)
 EMM_pipeline("GAS", "list", curr_work_dir)
 MASTER_pipeline("GAS", "rRNA16S", "list", "list", curr_work_dir)
