@@ -1,5 +1,5 @@
 # Updates fasta lookup tables
-#' July 3, 2024, Shelley Peterson
+#' February 5 2024, Shelley Peterson
 #'
 #' Downloads lookup table data from URLs
 #'
