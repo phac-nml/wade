@@ -24,7 +24,7 @@ proximity_test <- function(Org_id, curr_work_dir) {
   # Load datafiles
   AMR_data <- as_tibble(read.csv(paste0(directorylist$output_dir, "LabWareUpload_", Org_id, "_AMR.csv"),
                                  header = TRUE, sep = ",", stringsAsFactors = FALSE))
-  Locations_data <- read_excel(file.choose(), skip = 15)
+  Locations_data <- read_excel(file.choose(), sheet = "Client Submission", skip = 16)
   
   #define variables
   myLetters <- toupper(letters[1:8])
