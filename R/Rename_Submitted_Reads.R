@@ -1,5 +1,5 @@
 #' Renames submitted WGS reads to NML LabWare numbers
-#' July 3, 2024, Shelley Peterson
+#' October 8 2024, Shelley Peterson
 #' 
 #' This script renames submitted PT reads to NML numbers for upload into IRIDA
 #'
@@ -20,14 +20,14 @@ rename_fastqs <- function(x) {
   metadatafile <- file.choose()
   setwd(dirname(metadatafile))
   data <- read.csv(metadatafile, skip = 1, header = T)
-  data$NewR1 <- gsub(".*_R1", "_R1", data$R1.File.Name)
+  data$NewR1 <- gsub(".*_R1", "_R1", data$R1_Filename)
   data$NewR1 <- paste0(data$NML.No., data$NewR1)
-  data$NewR2 <- gsub(".*_R2", "_R2", data$R2.File.Name)
+  data$NewR2 <- gsub(".*_R2", "_R2", data$R2_Filename)
   data$NewR2 <- paste0(data$NML.No., data$NewR2)
   
   # rename (actually copy) files
-  data$RenamedR1 <- file.copy(data$R1.File.Name, data$NewR1, overwrite = T)
-  data$RenamedR2 <- file.copy(data$R2.File.Name, data$NewR2, overwrite = T) 
+  data$RenamedR1 <- file.copy(data$R1_Filename, data$NewR1, overwrite = T)
+  data$RenamedR2 <- file.copy(data$R2_Filename, data$NewR2, overwrite = T) 
   
   #Make SampleList.csv
   samplelist <- data %>% filter(RenamedR1 == "TRUE" & RenamedR2 == "TRUE") %>%

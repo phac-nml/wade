@@ -1,5 +1,5 @@
 OrgID,LocalDir,SystemDir,ContigsDir,VCFDir
-GAS,C:\WADE,C:\Users\Documents\GitHub\wade\wade-data\,C:\Users\Documents\GitHub\wade\WADE\Example_contigs\,NA
-PNEUMO,C:\WADE,C:\Users\Documents\GitHub\wade\wade-data\,C:\Users\Documents\GitHub\wade\WADE\Example_contigs\,C:\Users\Documents\GitHub\wade\WADE\Example_contigs\
-GBS,C:\WADE,C:\Users\Documents\GitHub\wade\wade-data\,C:\Users\Documents\GitHub\wade\WADE\Example_contigs\,NA
-GONO,C:\WADE,C:\Users\Documents\GitHub\wade\wade-data\,C:\Users\Documents\GitHub\wade\WADE\Example_contigs\,C:\Users\Documents\GitHub\wade\WADE\Example_contigs\
+GAS,C:/WADE/,C:/Users/Documents/GitHub/wade/wade-data/,C:/Users/Documents/GitHub/wade/WADE/Example_contigs/,NA
+PNEUMO,C:/WADE/,C:/Users/Documents/GitHub/wade/wade-data/,C:/Users/Documents/GitHub/wade/WADE/Example_contigs/,C:/Users/Documents/GitHub/wade/WADE/Example_contigs/
+GBS,C:/WADE/,C:/Users/Documents/GitHub/wade/wade-data/,C:/Users/Documents/GitHub/wade/WADE/Example_contigs/,NA
+GONO,C:/WADE/,C:/Users/Documents/GitHub/wade/wade-data/,C:/Users/Documents/GitHub/wade/WADE/Example_contigs/,C:/Users/Documents/GitHub/wade/WADE/Example_contigs/
