@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for GONO AMR
-#' July 3 2024, Walter Demczuk & Shelley Peterson
+#' January 15 2025, Walter Demczuk & Shelley Peterson
 #' #' Run AMR first, then run the 23S allele counts, and then the NGSTAR-MLST analyses
 #' Then run this analysis to combine data from AMR, 23S rRNA and NG-STAR
 #' to prepare full amr profile to upload to LabWare.
@@ -15,7 +15,7 @@
 #-------------------------------------------------------------------------------
 #  For troubleshooting and debugging
 #  Org_id <- "GONO"
-#  curr_work_dir <- "C:\\WADE\\"
+#  curr_work_dir <- "C:/WADE/"
 #-------------------------------------------------------------------------------
 
 labware_gono_amr <- function(Org_id, curr_work_dir) {
@@ -134,7 +134,13 @@ labware_gono_amr <- function(Org_id, curr_work_dir) {
                        lw_porB_A121 = "NA",
                        molec_profile_porB = "NA",
                        v_porB_G120 = 0,
-                       v_porB_A121 = 0)
+                       v_porB_A121 = 0,
+                       v_porB_porB1b = 0,
+                       v_porB_G120D = 0,
+                       v_porB_G120K = 0,
+                       v_porB_G120N = 0,
+                       v_porB_A121D = 0,
+                       v_porB_A121G = 0)
       }else
       {
         porB <- allele2SNPs(Combined_Output.df, "porB", "porB", "mutations", "G120", "A121", m)
@@ -143,10 +149,24 @@ labware_gono_amr <- function(Org_id, curr_work_dir) {
           porB$lw_porB_struct <- "Err"
           porB$v_porB_G120 <- 0
           porB$v_porB_A121 <- 0
+          porB$v_porB_porB1b <- 0
+          porB$v_porB_G120D <- 0
+          porB$v_porB_G120K <- 0
+          porB$v_porB_G120N <- 0
+          porB$v_porB_A121D <- 0
+          porB$v_porB_A121G <- 0
         }
         else
-        {porB$lw_porB_struct <- "porB1b"}
-        porB <- relocate(porB, lw_porB, lw_porB_struct, everything())
+        {
+          porB$lw_porB_struct <- "porB1b"
+          porB <- relocate(porB, lw_porB, lw_porB_struct, everything())
+          porB$v_porB_porB1b <- ifelse(porB$lw_porB_struct == "porB1b", 1, 0)
+          porB$v_porB_G120D <- ifelse(porB$lw_porB_G120 == "G120D", 1, 0)
+          porB$v_porB_G120K <- ifelse(porB$lw_porB_G120 == "G120K", 1, 0)
+          porB$v_porB_G120N <- ifelse(porB$lw_porB_G120 == "G120N", 1, 0)
+          porB$v_porB_A121D <- ifelse(porB$lw_porB_A121 == "A121D", 1, 0)
+          porB$v_porB_A121G <- ifelse(porB$lw_porB_A121 == "A121G", 1, 0)
+        }
       }
   
       ##### ponA #####
@@ -195,7 +215,7 @@ labware_gono_amr <- function(Org_id, curr_work_dir) {
       ##### Azithromycin (AZI) #####
       azi <- NA
 
-      if(str_detect(molec_profile, paste(c("mtrR Err", "A2059 Err", "C2611T Err"),collapse = '|')))
+      if(str_detect(molec_profile, paste(c("mtrR Err", "A2059 Err", "C2611T Err", "NA/4"),collapse = '|')))
       {
         azi <- tibble(azi = "Err",
                       azi_interp = "Err",
@@ -224,14 +244,20 @@ labware_gono_amr <- function(Org_id, curr_work_dir) {
                       pen_profile = "PEN-Err")
       }else
       {
-        pen_MIC_calc <- round(-3.21+
-                             (6.42*bla$v_bla)+
-                             (0.56*mtrR$v_mtrR_MENDIS)+
-                             (1.34*porB$v_porB_G120)+
-                             (1.55*ponA$v_ponA)+
-                             (1.25*penA$v_penA_N513Y)+
-                             (1.28*penA$v_penA_A517G)+
-                             (0.42*penA$v_penA_G543S))
+        pen_MIC_calc <- round(-3.44+
+                             (7.11*bla$v_bla)+
+                             (0.19*mtrR$v_mtrR_MEN)+
+                             (0.32*mtrR$v_mtrR_G45)+
+                             (0.23*penA$v_penA_A501T)+
+                             (1.93*penA$v_penA_N513Y)+
+                             (1.36*penA$v_penA_A517G)+
+                             (0.74*penA$v_penA_G543S)+
+                             (0.54*ponA$v_ponA)+
+                             (0.68*porB$v_porB_G120D)+
+                             (1.54*porB$v_porB_G120K)+
+                             (0.86*porB$v_porB_G120N)+
+                             (0.63*porB$v_porB_A121D)+
+                             (0.13*porB$v_porB_A121G))
         pen <- MICcalc(MIC_table, "pen", pen_MIC_calc, -3L, 7L)
       }
 
@@ -285,15 +311,14 @@ labware_gono_amr <- function(Org_id, curr_work_dir) {
                       cip_profile = "CIP-Err")
       }else
       {
-        cip_MIC_calc <- round(-7.62+
-                             (5.67*gyrA$v_gyrA_S91)+
-                             (5.05*parC$v_parC_D86)+
-                             (5.67*parC$v_parC_S87R)+
-                             (4.18*parC$v_parC_S87I)+
-                             (5.95*parC$v_parC_S87C)+
-                             (1.79*parC$v_parC_S87N)+
-                             (1.45*parC$v_parC_S88)+
-                             (5.43*parC$v_parC_E91))
+        cip_MIC_calc <- round(-7.83+
+                             (7.603*gyrA$v_gyrA_S91)+
+                             (2.996*parC$v_parC_D86)+
+                             (3.112*parC$v_parC_S87R)+
+                             (3.124*parC$v_parC_S87I)+
+                             (4.223*parC$v_parC_S87C)+
+                             (1.591*parC$v_parC_S88)+
+                             (3.175*parC$v_parC_E91))
         cip <- MICcalc(MIC_table, "cip", cip_MIC_calc, -8L, 6L)
       }
 
@@ -331,13 +356,13 @@ labware_gono_amr <- function(Org_id, curr_work_dir) {
                         tet_profile = "TET-Err")
         }else
         {
-          tet_MIC_calc <- round(-1.83+
-                               (0.62*mtrR$v_mtrR_ANY)+
-                               (0.26*mtrR$v_mtrR_A39)+
-                               (0.79*porB$v_porB_G120)+
-                               (0.22*porB$v_porB_A121)+
-                               (2.11*rpsJ$v_rpsJ)+
-                               (4.15*tetM$v_tetM))
+          tet_MIC_calc <- round(-1.64+
+                               (0.33*mtrR$v_mtrR_ANY)+
+                               (0.33*porB$v_porB_porB1b)+
+                               (0.91*porB$v_porB_G120K)+
+                               (0.12*porB$v_porB_A121)+
+                               (1.73*rpsJ$v_rpsJ)+
+                               (4.41*tetM$v_tetM))
           tet <- MICcalc(MIC_table, "tet", tet_MIC_calc, -3L, 7L)
         }
       }
