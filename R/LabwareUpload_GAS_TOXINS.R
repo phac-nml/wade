@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for GAS Toxins
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' February 5 2025, Walter Demczuk & Shelley Peterson
 #' run MasterBlastR first, then this script outputs csv to LabWareUpload_GAS_TOXINS.csv in Output folder
 #'
 #' Then run this analysis to combine data the full amr profile to upload to LabWare.
@@ -29,7 +29,7 @@ labware_gas_toxins <- function(Org_id, curr_work_dir) {
                                   header = TRUE, sep = ",", stringsAsFactors = FALSE))
 
   Output.df$SampleProfile[Output.df$SampleProfile == ""] <- "Error"
-  LabWare.df <- tibble(Output.df$SampleNo,
+  Labware.df <- tibble(Output.df$SampleNo,
                        Output.df$speA_result,
                        Output.df$speC_result,
                        Output.df$speG_result,
@@ -44,14 +44,18 @@ labware_gas_toxins <- function(Org_id, curr_work_dir) {
                        Output.df$sagA_result,
                        Output.df$SampleProfile)
     
-  names(LabWare.df) <- c("SampleNo", "speA", "speC", "speG", "speH", "speI", 
-                         "speJ", "speK", "speL", "speM","smeZ", "ssa", "sagA", 
+  names(Labware.df) <- c("SampleNo", "speA", "speC", "speG", "speH", "speI", 
+                         "speJ", "speK", "speL", "speM","smeZ", "ssa", "sagA",
                          "TOXIN Profile")
+  
+  Labware.df$`TOXIN Profile` <- gsub("-sagA", "", Labware.df$`TOXIN Profile`)
+  Labware.df$`TOXIN Profile` <- gsub("sagA", "No Toxins Found", Labware.df$`TOXIN Profile`)
+  Labware.df$`TOXIN Profile` <- gsub("Susceptible", "No Toxins Found", Labware.df$`TOXIN Profile`)
 
-  write.csv(LabWare.df, paste(directorylist$output_dir, "LabWareUpload_GAS_TOXINS.csv", sep = ""),
+  write.csv(Labware.df, paste(directorylist$output_dir, "LabWareUpload_GAS_TOXINS.csv", sep = ""),
             quote = FALSE, row.names = FALSE)
 
   cat("\n\nDone! ", directorylist$output_dir, "LabWareUpload_GAS_TOXINS.csv is ready in output folder", "\n\n\n", sep = "")
 
-  return(LabWare.df)
+  return(Labware.df)
 }

@@ -1,5 +1,5 @@
 #' M1UK typing pipeline from WGS SNVPhyl M1UK Analysis
-#' July 3, 2024, Walter Demczuk & Shelley Peterson
+#' February 5 2025, Walter Demczuk & Shelley Peterson
 #'
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param variant M1UK or M1DK - which SNP list should be referenced
@@ -19,7 +19,7 @@
 #  For troubleshooting and debugging
 #Org_id <- "GAS"
 #variant <- "M1UK"                #M1UK or M1DK
-#curr_work_dir <- "C:\\WADE\\"
+#curr_work_dir <- "C:/WADE/"
 #Blast_evalue <- "10e-50"         #sets sensitivity of Blast gene match 10e-50 to 10e-150; use 10e-5 for primers
 #-------------------------------------------------------------------------------
 
@@ -73,9 +73,8 @@ EMM_V_pipeline <- function(Org_id, variant, curr_work_dir){
 
   #-----------------------------------------------------------------------------
   # get directory structure and remove previous output files
-  Test_id <- "EMM"
-  directorylist <- getdirectory(curr_work_dir, Org_id, Test_id)
-  reflist <- refdirectory(directorylist, Org_id, Test_id)
+  directorylist <- getdirectory(curr_work_dir, Org_id, "EMM")
+  reflist <- refdirectory(directorylist, Org_id, "EMM")
   #-----------------------------------------------------------------------------
 
   ########################### Load Reference Files #############################
@@ -93,7 +92,7 @@ EMM_V_pipeline <- function(Org_id, variant, curr_work_dir){
     pattern_ref <- "ATCGCGGCAAGGGTC" #SNV pattern for MGAs5005 WT Ref Strain
   }
 
-  dna_file <- paste0(reflist$Temp_Dir, "output_dna.fasta")
+  dna_file <- paste0(directorylist$temp_dir, "output_dna.fasta")
   unlink(dna_file) #this deletes the file!
 
   ##################### Load, Filter & Rearrange SNV Table #####################

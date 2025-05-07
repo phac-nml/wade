@@ -331,7 +331,6 @@ server <- function(input, output) {
              TREE_ORDER={output.df <- nwk_sort_order(input$Org, curr_work_dir)},
              FILE_RENAME={output.df <- rename_submitted(input$curation_orgs, curr_work_dir)},
              REMOVE_DUPLICATES={output.df <- remove_duplicate_fasta(input$Org, input$allele, curr_work_dir)},
-             UPDATE_LOOKUPS={output.df <- update_lookups(input$lookuptables, curr_work_dir)},
              FIND_DUPLICATES={output.df <- find_sample_duplicates(input$duplicates_orgs, curr_work_dir)},
              CONTAMINATION_CHECK={output.df <- proximity_test(input$curation_orgs, curr_work_dir)},
              MIC_CHECK={output.df <- MIC_compare(curr_work_dir)}

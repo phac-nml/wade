@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for GONO AMR
-#' January 15 2025, Walter Demczuk & Shelley Peterson
+#' January 22 2025, Walter Demczuk & Shelley Peterson
 #' #' Run AMR first, then run the 23S allele counts, and then the NGSTAR-MLST analyses
 #' Then run this analysis to combine data from AMR, 23S rRNA and NG-STAR
 #' to prepare full amr profile to upload to LabWare.
@@ -237,7 +237,7 @@ labware_gono_amr <- function(Org_id, curr_work_dir) {
       ##### Penicillin (PEN) #####
       pen <- NA
 
-      if(str_detect(penA$lw_penA, "Err"))
+      if(str_detect(molec_profile, paste(c("mtrR Err", "porB Err", "ponA Err", "penA Err"),collapse = '|')))
       {
         pen <- tibble(pen = "Err",
                       pen_interp = "Err",

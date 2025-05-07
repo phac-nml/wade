@@ -1,5 +1,5 @@
 #' Molecular typing pipeline for WGS assemblies
-#' July 3 2024, Walter Demczuk & Shelley Peterson
+#' February 5 2024, Walter Demczuk & Shelley Peterson
 #'
 #' Takes Organism, Sample Number, Locus, to query a contig.fasta file
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
@@ -34,7 +34,7 @@
 #  For troubleshooting and debugging
 #   Org_id <- "PNEUMO"                #GAS, GBS, PNEUMO or GONO
 #   Test_id <- "AMR"                  #AMR, TOXINS, VIRULENCE, NGSTAR, rRNA_16S
-#   SampleNo <- "SC23-8992-A"
+#   SampleNo <- "list"
 #   LocusID <- "list"
 #   curr_work_dir <- "C:\\WADE\\"
 #   Blast_evalue <- "10e-50"          #sets sensitivity of Blast gene match 10e-50 to 10e-150; use 10e-5 for primers
