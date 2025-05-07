@@ -1,5 +1,5 @@
 #' emm typing pipeline from WGS assemblies
-#' February 5 2024, Walter Demczuk & Shelley Peterson
+#' February 5 2025, Walter Demczuk & Shelley Peterson
 #'
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param SampleNo Sample number associated with contig.fasta file
@@ -111,6 +111,7 @@ EMM_pipeline <- function(Org_id, SampleNo, curr_work_dir){
         if(dfSize_blastout_2 == 0)
         {
           df.blastout_2 <- df.blastout_bad_100
+          emmComment <- "Full match to bad allele"
         }
         
         df.blastout_2$emmType <- sub("\\.\\d+","", df.blastout_2$Allele)
