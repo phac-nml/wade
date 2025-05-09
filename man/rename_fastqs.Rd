@@ -3,7 +3,7 @@
 \name{rename_fastqs}
 \alias{rename_fastqs}
 \title{Renames submitted WGS reads to NML LabWare numbers
-July 3, 2024, Shelley Peterson}
+October 8 2024, Shelley Peterson}
 \usage{
 rename_fastqs(x)
 }
