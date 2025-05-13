@@ -1,0 +1,63 @@
+Strain_ID,Submitting Lab Number,Submitting Lab,Province,Age,Gender,Clinical Source,Date Collected,Year
+reference,reference,NA,NA,NA,NA,NA,2018-01-01,2018
+GAS_1,1001,Site_1,Prov_A,66,Male,Blood,2018-01-02,2018
+GAS_2,1002,Site_1,Prov_A,38,Female,Blood,2018-01-03,2018
+GAS_3,1003,Site_1,Prov_A,3,Female,Blood,2018-01-04,2018
+GAS_4,1004,Site_1,Prov_A,10,Male,Other Sterile Site,2018-01-05,2018
+GAS_5,1005,Site_1,Prov_A,55,Male,Blood,2018-01-06,2018
+GAS_6,1006,Site_1,Prov_A,4,Male,Other Sterile Site,2018-01-07,2018
+GAS_7,1007,Site_1,Prov_A,38,Female,Other Sterile Site,2018-01-08,2018
+GAS_8,1008,Site_2,Prov_B,3,Male,Blood,2018-01-09,2018
+GAS_9,1009,Site_1,Prov_A,60,Male,Other Sterile Site,2018-01-10,2018
+GAS_10,1010,Site_1,Prov_A,58,Female,Blood,2018-01-11,2018
+GAS_11,1011,Site_1,Prov_A,31,Male,Blood,2018-01-12,2018
+GAS_12,1012,Site_1,Prov_A,63,Female,Blood,2018-01-13,2018
+GAS_13,1013,Site_1,Prov_A,52,Male,Other Sterile Site,2018-01-14,2018
+GAS_14,1014,Site_1,Prov_A,81,Female,Blood,2018-01-15,2018
+GAS_15,1015,Site_1,Prov_A,43,Female,Blood,2018-01-16,2018
+GAS_16,1016,Site_1,Prov_A,98,Female,Other Sterile Site,2018-01-17,2018
+GAS_17,1017,Site_1,Prov_A,68,Male,Other Sterile Site,2018-01-18,2018
+GAS_18,1018,Site_1,Prov_A,5,Female,Other Sterile Site,2018-01-19,2018
+GAS_19,1019,Site_1,Prov_A,5,Unknown,Blood,2018-01-20,2018
+GAS_20,1020,Site_1,Prov_A,38,Male,Other Sterile Site,2018-01-21,2018
+GAS_21,1021,Site_1,Prov_A,5,Female,Other Sterile Site,2018-01-22,2018
+GAS_22,1022,Site_2,Prov_B,29,Male,Blood,2018-01-23,2018
+GAS_23,1023,Site_2,Prov_B,40,Male,Blood,2018-01-24,2018
+GAS_24,1024,Site_1,Prov_A,72,Male,Blood,2018-01-25,2018
+GAS_25,1025,Site_1,Prov_A,37,Male,Blood,2018-01-26,2018
+GAS_26,1026,Site_1,Prov_A,1,Female,Other Sterile Site,2018-01-27,2018
+GAS_27,1027,Site_1,Prov_A,80,Unknown,Other Sterile Site,2018-01-28,2018
+GAS_28,1028,Site_1,Prov_A,57,Male,Blood,2018-01-29,2018
+GAS_29,1029,Site_1,Prov_A,1,Male,Blood,2018-01-30,2018
+GAS_30,1030,Site_1,Prov_A,62,Female,Other Sterile Site,2018-01-31,2018
+GAS_31,1031,Site_2,Prov_B,4,Female,Blood,2018-02-01,2018
+GAS_32,1032,Site_1,Prov_A,93,Male,Other Sterile Site,2018-02-02,2018
+GAS_33,1033,Site_1,Prov_A,4,Male,Other Sterile Site,2018-02-03,2018
+GAS_34,1034,Site_1,Prov_A,54,Male,Other Sterile Site,2018-02-04,2018
+GAS_35,1035,Site_1,Prov_A,54,Male,Other Sterile Site,2018-02-05,2018
+GAS_36,1036,Site_1,Prov_A,82,Male,Blood,2018-02-06,2018
+GAS_37,1037,Site_1,Prov_A,60,Male,Blood,2018-02-07,2018
+GAS_38,1038,Site_1,Prov_A,28,Female,Blood,2018-02-08,2018
+GAS_39,1039,Site_1,Prov_A,33,Female,Blood,2018-02-09,2018
+GAS_40,1040,Site_1,Prov_A,69,Male,Blood,2018-02-10,2018
+GAS_41,1041,Site_2,Prov_B,40,Male,Blood,2018-02-11,2018
+GAS_42,1042,Site_1,Prov_A,72,Male,Other Sterile Site,2018-02-12,2018
+GAS_43,1043,Site_2,Prov_B,89,Female,Other Sterile Site,2018-02-13,2018
+GAS_44,1044,Site_1,Prov_A,39,Male,Blood,2018-02-14,2018
+GAS_45,1045,Site_1,Prov_A,60,Female,Blood,2018-02-15,2018
+GAS_46,1046,Site_1,Prov_A,51,Female,Blood,2018-02-16,2018
+GAS_47,1047,Site_1,Prov_A,80,Female,CSF,2018-02-17,2018
+GAS_48,1048,Site_1,Prov_A,7,Female,Other Sterile Site,2018-02-18,2018
+GAS_49,1049,Site_2,Prov_B,7,Male,Other Sterile Site,2018-02-19,2018
+GAS_50,1050,Site_1,Prov_A,2,Female,Blood,2018-02-20,2018
+GAS_51,1051,Site_1,Prov_A,2,Female,Other Sterile Site,2018-02-21,2018
+GAS_52,1052,Site_2,Prov_B,52,Male,Blood,2018-02-22,2018
+GAS_53,1053,Site_1,Prov_A,6,Male,Blood,2018-02-23,2018
+GAS_54,1054,Site_2,Prov_B,34,Female,Blood,2018-02-24,2018
+GAS_55,1055,Site_2,Prov_B,60,Female,Blood,2018-02-25,2018
+GAS_56,1056,Site_1,Prov_A,63,Female,Blood,2018-02-26,2018
+GAS_57,1057,Site_1,Prov_A,54,Male,Blood,2018-02-27,2018
+GAS_58,1058,Site_1,Prov_A,35,Male,Blood,2019-01-01,2019
+GAS_59,1059,Site_1,Prov_A,1,Male,Blood,2019-01-02,2019
+GAS_60,1060,Site_1,Prov_A,1,Female,Blood,2019-01-03,2019
+GAS_61,1061,Site_1,Prov_A,56,Male,Other Sterile Site,2019-01-04,2019
