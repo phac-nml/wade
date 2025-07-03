@@ -3,7 +3,7 @@
 \name{EMM_pipeline}
 \alias{EMM_pipeline}
 \title{emm typing pipeline from WGS assemblies
-February 5 2024, Walter Demczuk & Shelley Peterson}
+February 5 2025, Walter Demczuk & Shelley Peterson}
 \usage{
 EMM_pipeline(Org_id, SampleNo, curr_work_dir)
 }
@@ -19,7 +19,7 @@ A table frame containing the results of the query
 }
 \description{
 emm typing pipeline from WGS assemblies
-February 5 2024, Walter Demczuk & Shelley Peterson
+February 5 2025, Walter Demczuk & Shelley Peterson
 }
 \details{
 GAS emm typing:

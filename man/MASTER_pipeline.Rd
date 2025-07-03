@@ -3,7 +3,7 @@
 \name{MASTER_pipeline}
 \alias{MASTER_pipeline}
 \title{Molecular typing pipeline for WGS assemblies
-July 3 2024, Walter Demczuk & Shelley Peterson}
+February 5 2024, Walter Demczuk & Shelley Peterson}
 \usage{
 MASTER_pipeline(Org_id, Test_id, SampleNo, LocusID, curr_work_dir)
 }

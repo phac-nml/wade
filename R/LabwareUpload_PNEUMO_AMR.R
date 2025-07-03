@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for PNEUMO AMR
-#' July 3 2024, Walter Demczuk & Shelley Peterson
+#' May 22 2025, Walter Demczuk & Shelley Peterson
 #' Run AMR first, then run the 23S allele counts,
 #' Then run this analysis to combine data from AMR, 23S rRNA
 #' to prepare full amr profile to upload to LabWare.
@@ -119,6 +119,7 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
       ermB$allele_ermB[ermB$allele_ermB == "NF"] <- "ermB +"
       ermB$allele_ermB[ermB$lw_ermB == "NEG"] <- "ermB -"
       ermB$lw_ermB[ermB$mutations_ermB == "S"] <- "NEG"
+      ermB$v_ermB[ermB$mutations_ermB == "S"] <- 0
       ermB$molec_profile_ermB[ermB$mutations_ermB == "S"] <- "ermB(S)"
 
       ##### ermTR #####

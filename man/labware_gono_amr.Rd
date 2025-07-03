@@ -3,7 +3,7 @@
 \name{labware_gono_amr}
 \alias{labware_gono_amr}
 \title{Labware Upload Formatter for GONO AMR
-July 3 2024, Walter Demczuk & Shelley Peterson
+January 22 2025, Walter Demczuk & Shelley Peterson
 #' Run AMR first, then run the 23S allele counts, and then the NGSTAR-MLST analyses
 Then run this analysis to combine data from AMR, 23S rRNA and NG-STAR
 to prepare full amr profile to upload to LabWare.}
@@ -20,7 +20,7 @@ A table frame containing the results of the query
 }
 \description{
 Labware Upload Formatter for GONO AMR
-July 3 2024, Walter Demczuk & Shelley Peterson
+January 22 2025, Walter Demczuk & Shelley Peterson
 #' Run AMR first, then run the 23S allele counts, and then the NGSTAR-MLST analyses
 Then run this analysis to combine data from AMR, 23S rRNA and NG-STAR
 to prepare full amr profile to upload to LabWare.
