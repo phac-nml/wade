@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for PNEUMO AMR
-#' May 22 2025, Walter Demczuk & Shelley Peterson
+#' August 28 2025, Walter Demczuk & Shelley Peterson
 #' Run AMR first, then run the 23S allele counts,
 #' Then run this analysis to combine data from AMR, 23S rRNA
 #' to prepare full amr profile to upload to LabWare.
@@ -233,7 +233,7 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
                               (gyrA$v_gyrA_S81Y * 3.907)+
                               (gyrA$v_gyrA_S81L * 4.907)+
                               (parC$v_parC_S79 * 0.911))
-        mox <-  MICcalc(MIC_table, "mox", mox_MIC_calc, -3, 5L)
+        mox <-  MICcalc(MIC_table, "mox", mox_MIC_calc, 0, 5L)
       }
 
       ##### Penicillin (PEN) #####
@@ -287,7 +287,7 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
                              (pbp2x$v_pbp2x_motif1_SAFK * 2.322)+
                              (pbp2x$v_pbp2x_motif1_other * 0.256)+
                              (pbp2x$v_pbp2x_motif4_VKSG * 1.026))
-        cxm <- MICcalc(MIC_table, "cxm", cxm_MIC_calc, -1, 4L)
+        cxm <- MICcalc(MIC_table, "cxm", cxm_MIC_calc, -1, 3L)
       }
 
       ##### Trimethoprim/Sulfamethoxazole (SXT) #####
@@ -339,14 +339,14 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
                              (rRNA23S$v_23S_A2059G * 1.993)+
                              (ermB$v_ermB * 7.680)+
                              (mefAE$v_mefAE * 4.808))
-        ery <- MICcalc(MIC_table, "ery", ery_MIC_calc, -3, 5L)
+        ery <- MICcalc(MIC_table, "ery", ery_MIC_calc, -3, 2L)
 
         azi_MIC_calc <- round(-1.9722 +
                              (rRNA23S$v_23S_A2059G * 1.1204)+
                              (rRNA23S$v_23S_C2611T * 0.9917)+
                              (ermB$v_ermB * 3.9722)+
                              (mefAE$v_mefAE * 3.8122))
-        azi <- MICcalc(MIC_table, "azi", azi_MIC_calc, -2, 1L)
+        azi <- MICcalc(MIC_table, "azi", azi_MIC_calc, -2, 2L)
 
         cla_MIC_calc <- round(-4.984 +
                              (rRNA23S$v_23S_A2059G * 1.819)+
@@ -359,7 +359,7 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
         cli_MIC_calc <- round(-2.8145 +
                              (rRNA23S$v_23S_A2059G * 0.456)+
                              (ermB$v_ermB * 9.048))
-        cli <-  MICcalc(MIC_table, "cli", cli_MIC_calc, -3, 6L)
+        cli <-  MICcalc(MIC_table, "cli", cli_MIC_calc, -3, 1L)
         cli$cli_interp <- ifelse(ermTR$lw_ermTR == "POS", "Inducible", cli$cli_interp)
         if(cli$cli_interp == "Inducible")
         {
