@@ -1,5 +1,5 @@
 #' emm typing pipeline from WGS assemblies
-#' February 5 2025, Walter Demczuk & Shelley Peterson
+#' August 28 2025, Walter Demczuk & Shelley Peterson
 #'
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param SampleNo Sample number associated with contig.fasta file
@@ -18,7 +18,7 @@
 #-------------------------------------------------------------------------------
 #  For troubleshooting and debugging
 # Org_id <- "GAS"
-# SampleNo <- "list"        # Sample No or "list"
+# SampleNo <- "list"               # Sample No or "list"
 # curr_work_dir <- "C:\\WADE\\"
 # Blast_evalue <- "10e-50"         #sets sensitivity of Blast gene match 10e-50 to 10e-150; use 10e-5 for primers
 #-------------------------------------------------------------------------------
@@ -31,6 +31,9 @@ EMM_pipeline <- function(Org_id, SampleNo, curr_work_dir){
   directorylist <- getdirectory(curr_work_dir, Org_id, Test_id)
   reflist <- refdirectory(directorylist, Org_id, Test_id)
   #-----------------------------------------------------------------------------
+
+  # create a fasta file for all sequences output_dna.fasta
+  dna_file <- paste0(directorylist$output_dir, "output_dna.fasta")
 
   Variable <- NA
   emmType <- ""
@@ -105,15 +108,6 @@ EMM_pipeline <- function(Org_id, SampleNo, curr_work_dir){
         df.blastout_2 <- anti_join(df.blastout, df.bad_emm, by = "Allele")  #remove bad emm's
         dfSize_blastout_2 <- nrow(df.blastout_2)
         
-        # if there are no good emm types even with partial match (blastout_2 is empty)
-        # but only bad ones, use the bad one as the alternative emm type as if it were
-        # a partial match
-        if(dfSize_blastout_2 == 0)
-        {
-          df.blastout_2 <- df.blastout_bad_100
-          emmComment <- "Full match to bad allele"
-        }
-        
         df.blastout_2$emmType <- sub("\\.\\d+","", df.blastout_2$Allele)
         
         df.blastout100 <- filter(df.blastout_2, Ident == 100 & Align == CurrLocusLen)
@@ -141,11 +135,42 @@ EMM_pipeline <- function(Org_id, SampleNo, curr_work_dir){
           {
             emmComment <- "partial match to bad allele"
           }
-        }else
+          # if there are no good emm types even with partial match (blastout_2 is empty)
+          # but only bad ones, use the bad one as the alternative emm type as if it were
+          # a partial match
+          if(is.na(BP_ids) & nrow(df.blastout_bad_100 > 0))
+          {
+            emmType <- "NT"
+            emmSubtype <- "NT"
+            emmTypeRep <- "NT"
+            emmComment <- paste("Full match to bad allele", df.blastout_bad_100$Allele[1], sep = " ")
+          }
+        }else 
         {
           emmTypeRep[BP_ids >= 150] <- "NT"
           emmTypeRep[BP_ids == 180] <- emmSubtype
         }
+        
+        Blast_Out_File2 <- paste0(directorylist$temp_dir, "blastout2.txt")
+        BlastCommand <- paste0("blastn -query ", reflist$DestFile,
+                               " -db ", LocusLkupDNA,
+                               " -out ", Blast_Out_File2,
+                               " -num_alignments 10 -evalue ", Blast_evalue)
+        system(BlastCommand)
+        blastoutput2 <- readLines(Blast_Out_File2)
+        
+        emmNumber <- sub("emm","", emmType)
+        contigsline <- grep(paste0(">EMM", emmNumber), blastoutput2)
+        blastoutput2 <- blastoutput2[contigsline[1]:contigsline[2]]   
+        QueryLine <- grep("Query ", blastoutput2, value = TRUE)
+        QueryLine <- QueryLine[1:3]
+        emmseq <- gsub("[^AaCcTtGgN-]", "", paste(QueryLine, collapse = ""))
+        
+        sink(dna_file, split=FALSE, append = TRUE)
+        cat(">", "emm", "_", CurrSampleNo, "_", emmType,"\n",
+            emmseq, "\n", sep ="")
+        sink()
+        
       }#======================================================================== End found EMM
     }#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ End look for EMM
 
