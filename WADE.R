@@ -340,7 +340,7 @@ server <- function(input, output) {
     unlink(paste0(curr_work_dir, "Output/output_profile.csv"))
     write.csv(output.df, paste0(curr_work_dir, "Output/output_profile.csv"), row.names = F)
 
-    output$profile_table <- renderDataTable({output.df})
+    output$profile_table <- renderDT({output.df})
   })
 
   observeEvent(input$openxls,
