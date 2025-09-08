@@ -155,22 +155,24 @@ EMM_pipeline <- function(Org_id, SampleNo, curr_work_dir){
         BlastCommand <- paste0("blastn -query ", reflist$DestFile,
                                " -db ", LocusLkupDNA,
                                " -out ", Blast_Out_File2,
-                               " -num_alignments 10 -evalue ", Blast_evalue)
+                               " -num_alignments 10 -evalue ", 1e-50)
         system(BlastCommand)
         blastoutput2 <- readLines(Blast_Out_File2)
         
         emmNumber <- sub("emm","", emmType)
         contigsline <- grep(paste0(">EMM", emmNumber), blastoutput2)
-        blastoutput2 <- blastoutput2[contigsline[1]:contigsline[2]]   
-        QueryLine <- grep("Query ", blastoutput2, value = TRUE)
-        QueryLine <- QueryLine[1:3]
-        emmseq <- gsub("[^AaCcTtGgN-]", "", paste(QueryLine, collapse = ""))
+                if(length(contigsline) > 0)
+        {
+          blastoutput2 <- blastoutput2[contigsline[1]:contigsline[2]]   
+          QueryLine <- grep("Query ", blastoutput2, value = TRUE)
+          QueryLine <- QueryLine[1:3]
+          emmseq <- gsub("[^AaCcTtGgN-]", "", paste(QueryLine, collapse = ""))
         
-        sink(dna_file, split=FALSE, append = TRUE)
-        cat(">", "emm", "_", CurrSampleNo, "_", emmType,"\n",
-            emmseq, "\n", sep ="")
-        sink()
-        
+          sink(dna_file, split=FALSE, append = TRUE)
+          cat(">", "emm", "_", CurrSampleNo, "_", emmType,"\n",
+              emmseq, "\n", sep ="")
+          sink()
+        }
       }#======================================================================== End found EMM
     }#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ End look for EMM
 
