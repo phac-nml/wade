@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for PNEUMO AMR
-#' August 28 2025, Walter Demczuk & Shelley Peterson
+#' October 29 2025, Walter Demczuk & Shelley Peterson
 #' Run AMR first, then run the 23S allele counts,
 #' Then run this analysis to combine data from AMR, 23S rRNA
 #' to prepare full amr profile to upload to LabWare.
@@ -53,7 +53,7 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
     {
       sample_data.df <- tibble(lw_CurrSampleNo, lw_pbp1a = "Sample_Err", 
                                lw_pbp2b = "Sample_Err", lw_pbp2x = "Sample_Err",
-                               lw_23S_A2059G = "Sample_Err", lw_23S_C2611T <- "Sample_Err",
+                               lw_23S_A2059G = "Sample_Err", lw_23S_C2611T = "Sample_Err",
                                lw_ermB = "Sample_Err", lw_ermTR = "Sample_Err", 
                                lw_mefAE = "Sample_Err", lw_folA = "Sample_Err", 
                                lw_folP = "Sample_Err", lw_gyrA = "Sample_Err", 
@@ -109,6 +109,9 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
       rRNA23S$molec_profile_23S <- ifelse((is.na(rRNA23S$lw_23S_prof) & rRNA23S$lw_23S_C2611T > 0),
                                            paste0(rRNA23S$molec_profile_23S, "23S rRNA C2611T: ",
                                                   rRNA23S$lw_23S_C2611T, "/4"), NA)
+      rRNA23S$molec_profile_23S <- ifelse((is.na(rRNA23S$lw_23S_prof) & Combined_Output.df[m, "G2576T"] > 0),
+                                          paste0(rRNA23S$molec_profile_23S, "23S rRNA G2576T: ",
+                                                 Combined_Output.df[m, "G2576T"], "/4"), NA)
       rRNA23S$molec_profile_23S <- sub("NA", "", rRNA23S$molec_profile_23S)
       rRNA23S$lw_23S_prof[is.na(rRNA23S$lw_23S_prof)] <- rRNA23S$molec_profile_23S
 
@@ -152,7 +155,7 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
       ##### cat #####
       cat <- posneg_gene(Combined_Output.df, "cat", m)
 
-      # -------------------- Vancomycin - Not included in LW export, but is included in molec_profile
+      # ---------- Vancomycin - Not included in LW export, but is included in molec_profile
   
       ##### vanA #####
       vanA <- posneg_gene(Combined_Output.df, "vanA", m)
@@ -171,6 +174,14 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
 
       ##### vanG #####
       vanG <- posneg_gene(Combined_Output.df, "vanG", m)
+      
+      # ---------- Linezolid - Not included in LW export, but it is included in molec_profile
+      ##### rplD #####
+      rplD <- allele4SNPs(Combined_Output.df, "rplD", "rplD", "motifs", "PWRQ", "Q67", "R72", "QKGT", m)
+      rplD$molec_profile_rplD <- NA
+      rplD$molec_profile_rplD[rplD$lw_rplD_PWRQ == "P--Q"] <- "rplD P--Q"
+      rplD$molec_profile_rplD[rplD$lw_rplD_Q67 == "R" & rplD$lw_rplD_R72 == "G"] <- "rplD Q67R/R72G"
+      rplD$molec_profile_rplD[rplD$lw_rplD_QKGT == "Q--T"] <- "rplD Q--T"
 
       ######################## Now put them all together #######################
       molec_profile <- paste(ermB$molec_profile_ermB, ermTR$molec_profile_ermTR,
@@ -182,7 +193,8 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
                              gyrA$molec_profile_gyrA, parC$molec_profile_parC,
                              vanA$molec_profile_vanA, vanB$molec_profile_vanB,
                              vanC$molec_profile_vanC, vanD$molec_profile_vanD,
-                             vanE$molec_profile_vanE, vanG$molec_profile_vanG, sep = "; ")
+                             vanE$molec_profile_vanE, vanG$molec_profile_vanG, 
+                             rplD$molec_profile_rplD, sep = "; ")
       molec_profile <- gsub("NA; ", "", molec_profile)
       molec_profile <- sub("; NA", "", molec_profile)
 
