@@ -161,18 +161,20 @@ EMM_pipeline <- function(Org_id, SampleNo, curr_work_dir){
         
         emmNumber <- sub("emm","", emmType)
         contigsline <- grep(paste0(">EMM", emmNumber), blastoutput2)
-                if(length(contigsline) > 0)
+        if(length(contigsline) > 0)
         {
           blastoutput2 <- blastoutput2[contigsline[1]:contigsline[2]]   
           QueryLine <- grep("Query ", blastoutput2, value = TRUE)
           QueryLine <- QueryLine[1:3]
           emmseq <- gsub("[^AaCcTtGgN-]", "", paste(QueryLine, collapse = ""))
-        
+          
           sink(dna_file, split=FALSE, append = TRUE)
           cat(">", "emm", "_", CurrSampleNo, "_", emmType,"\n",
               emmseq, "\n", sep ="")
           sink()
         }
+
+        
       }#======================================================================== End found EMM
     }#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ End look for EMM
 
