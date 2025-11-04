@@ -1,5 +1,5 @@
 #' 23S rRNA pipeline for WGS assemblies to determine number of mutated alleles
-#' July 3 2024, Walter Demczuk & Shelley Peterson
+#' October 29, 2025, Walter Demczuk & Shelley Peterson
 #'
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param SampleNo Sample number or "list" or "folder" of sample numbers associated with VCF file(s)
@@ -21,7 +21,7 @@
 #'
 #' ON GALAXY:
 #'
-#' Alternative_allele_proporition = 0.1
+#' Alternative_allele_proportion = 0.1
 #' min_coverage = 15
 #' min_mean_mapping = 30
 #' run_name = 23S
@@ -37,8 +37,8 @@
 
 #-------------------------------------------------------------------------------
 #  For troubleshooting and debugging
-#Org_id <- "GONO"                   #PNEUMO or GONO
-#SampleNo <- "55555"                #Sample No or "list"  
+#Org_id <- "PNEUMO"                   #PNEUMO or GONO
+#SampleNo <- "list"                #Sample No or "list"  
 #curr_work_dir <- "C:\\WADE\\"
 #-------------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ rRNA23S_pipeline <- function(Org_id, SampleNo, curr_work_dir) {
       close(con)
       for (i in 1:length(linn))
       {
-        if(str_detect(linn[i], rRNA23S_position1))  #2597 & 2045 for GONO; 2061 for pneumo
+        if(str_detect(linn[i], rRNA23S_position1))  #2045 for GONO; 2061 for pneumo
         {
           vcf_parts <- strsplit(linn[i], ";")
           vcf_parts <- unlist(vcf_parts)
@@ -132,7 +132,7 @@ rRNA23S_pipeline <- function(Org_id, SampleNo, curr_work_dir) {
           A2059G <- 0L
         }
 
-        if(str_detect(linn[i], rRNA23S_position2))  #2597 & 2045 for GONO; 2061 for pneumo
+        if(str_detect(linn[i], rRNA23S_position2))  #2597 for GONO; 2061 for pneumo
         {
           vcf_parts2 <- strsplit(linn[i], ";")
           vcf_parts2 <- unlist(vcf_parts2)
@@ -151,12 +151,41 @@ rRNA23S_pipeline <- function(Org_id, SampleNo, curr_work_dir) {
         {
           C2611T <- 0L
         }
+        
+        if(Org_id == "PNEUMO") #Look for Linezolid Resistance = G2576T (E. coli numbering)
+        {
+          if(str_detect(linn[i], "2578"))  #2578 for Pneumo
+          {
+            vcf_parts2 <- strsplit(linn[i], ";")
+            vcf_parts2 <- unlist(vcf_parts2)
+            DP2_str <- vcf_parts2[8]
+            DP2 <- as.integer(substr(DP2_str, 4, 10))   #total number of reads (depth of reads)
+            AO2_str <- vcf_parts2[6]
+            AO2 <- as.integer(substr(AO2_str, 4, 10))  #alternate observations from reference
+            
+            allele_fraction <- as.integer((AO2/DP2)*100)
+            if(allele_fraction < 14){G2576T <- 0L}
+            if((allele_fraction >= 15) && (allele_fraction <= 34)) {G2576T <- 1L}
+            if((allele_fraction >= 35) && (allele_fraction <= 64)) {G2576T <- 2L}
+            if((allele_fraction >= 65) && (allele_fraction <= 84)) {G2576T <- 3L}
+            if(allele_fraction >= 85) {G2576T <- 4L}
+          }else
+          {
+            G2576T <- 0L
+          }
+        }
       }
     }
 
     cat(CurrSampleNo, "\tAC_2059: ", A2059G, "\tAC_2611: ", C2611T,"\n", sep = "")
 
     SampleProfile.df <- tibble(CurrSampleNo, A2059G, C2611T)
+    
+    if(Org_id == "PNEUMO")
+    {
+      SampleProfile.df$G2576T <- G2576T
+    }
+    
     OutputProfile.df <- rbind(OutputProfile.df, SampleProfile.df)
   
     #Progress Bar
@@ -171,8 +200,14 @@ rRNA23S_pipeline <- function(Org_id, SampleNo, curr_work_dir) {
     cat(paste(" // Estimated time remaining:", remaining), "\n")
   } #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> End Sample Loop
 
-  header <- c("SampleNo", "A2059G", "C2611T")
-  names(OutputProfile.df) <- header
+  if(Org_id == "GONO")
+  {
+    names(OutputProfile.df) <- c("SampleNo", "A2059G", "C2611T")
+  } else
+  {
+    names(OutputProfile.df) <- c("SampleNo", "A2059G", "C2611T", "G2576T")
+  }
+  
   write.csv(OutputProfile.df, directorylist$outfile, row.names = F)
 
   elapsed <- format(Sys.time() - start_time)
