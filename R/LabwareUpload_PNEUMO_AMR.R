@@ -1,5 +1,5 @@
 #' Labware Upload Formatter for PNEUMO AMR
-#' October 29 2025, Walter Demczuk & Shelley Peterson
+#' December 15 2025, Walter Demczuk & Shelley Peterson
 #' Run AMR first, then run the 23S allele counts,
 #' Then run this analysis to combine data from AMR, 23S rRNA
 #' to prepare full amr profile to upload to LabWare.
@@ -299,7 +299,7 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
                              (pbp2x$v_pbp2x_motif1_SAFK * 2.322)+
                              (pbp2x$v_pbp2x_motif1_other * 0.256)+
                              (pbp2x$v_pbp2x_motif4_VKSG * 1.026))
-        cxm <- MICcalc(MIC_table, "cxm", cxm_MIC_calc, -1, 3L)
+        cxm <- MICcalc(MIC_table, "cxm", cxm_MIC_calc, -1, 2L)
       }
 
       ##### Trimethoprim/Sulfamethoxazole (SXT) #####
@@ -481,15 +481,24 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
     {
       lw_output.df <- bind_rows(lw_output.df, sample_data.df)
     }
+    
+    
   } #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> End of sample loop
 
   lw_output_bad.df <- filter(lw_output.df, amr_profile == "Error")
   lw_output_good.df <- filter(lw_output.df, amr_profile != "Error")
 
+  van_lzd.df <- filter(lw_output.df, grepl("van|rplD", molec_profile))
+  
+  if(nrow(van_lzd.df) > 0)
+  {
+    write.csv(van_lzd.df, paste0(directorylist$output_dir, "SPN_AMR_warnings.csv"), quote = FALSE, row.names = FALSE)
+  }
+  
   write.csv(lw_output.df, paste0(directorylist$output_dir, "LabWareUpload_PNEUMO_AMR.csv"), quote = FALSE, row.names = FALSE)
   write.csv(lw_output_good.df, paste0(directorylist$output_dir, "LabWareUpload_PNEUMO_AMR_good.csv"), quote = FALSE, row.names = FALSE)
   write.csv(lw_output_bad.df, paste0(directorylist$output_dir, "LabWareUpload_PNEUMO_AMR_bad.csv"), quote = FALSE, row.names = FALSE)
-
+  
   cat("\n\nDone! ", directorylist$output_dir, "LabWareUpload_PNEUMO_AMR.csv is ready in output folder", "\n\n\n", sep = "")
 
   return(lw_output.df)

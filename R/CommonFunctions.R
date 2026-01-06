@@ -1,5 +1,5 @@
 #' Common helper functions for WADE analysis
-#' July 3, 2024, Shelley Peterson
+#' November 14 2025, Shelley Peterson
 #' 
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param Test_id AMR, TOXINS, VIRULENCE, NGSTAR, use MASTER for 16S id
@@ -69,6 +69,7 @@ removefiles <- function(curr_work_dir){
   unlink(paste0(curr_work_dir, "Output/output_dna_notfound.fasta"))
   unlink(paste0(curr_work_dir, "Output/output_dna_notfound_distinct.fasta"))
   unlink(paste0(curr_work_dir, "Output/output_aa.fasta"))
+  unlink(paste0(curr_work_dir, "Output/SPN_AMR_warnings.csv"))
 }
 
 #' @export
