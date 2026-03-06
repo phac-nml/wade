@@ -284,7 +284,7 @@ MASTER_pipeline <- function(Org_id, Test_id, SampleNo, LocusID, curr_work_dir){
 
             querylength <- grep("Length=", blastoutput2, value = TRUE)
             querylength <- sub("Length=", "", querylength)
-            lengthmatch <- ifelse(querylength[1] == querylength[2], TRUE, FALSE)
+            lengthmatch <- ifelse(querylength[1] <= querylength[2], TRUE, FALSE)
             IDLine2 <- grep("Identities", blastoutput2, value = TRUE)
             ExactMatchFound <- sum(str_detect(IDLine2, "(100%)"))
             

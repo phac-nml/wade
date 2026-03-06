@@ -1,5 +1,5 @@
 #' emm typing pipeline from WGS assemblies
-#' August 28 2025, Walter Demczuk & Shelley Peterson
+#' January 29, 2026, Walter Demczuk & Shelley Peterson
 #'
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
 #' @param SampleNo Sample number associated with contig.fasta file
@@ -161,9 +161,17 @@ EMM_pipeline <- function(Org_id, SampleNo, curr_work_dir){
         
         emmNumber <- sub("emm","", emmType)
         contigsline <- grep(paste0(">EMM", emmNumber), blastoutput2)
+
         if(length(contigsline) > 0)
         {
-          blastoutput2 <- blastoutput2[contigsline[1]:contigsline[2]]   
+          if(length(contigsline) == 1)
+          {
+            blastoutput2 <- blastoutput2[contigsline[1]:contigsline[1]+20]
+          
+          } else
+          {
+            blastoutput2 <- blastoutput2[contigsline[1]:contigsline[2]]
+          }
           QueryLine <- grep("Query ", blastoutput2, value = TRUE)
           QueryLine <- QueryLine[1:3]
           emmseq <- gsub("[^AaCcTtGgN-]", "", paste(QueryLine, collapse = ""))
