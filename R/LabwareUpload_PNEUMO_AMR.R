@@ -151,6 +151,9 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
 
       ##### tetO #####
       tetO <- posneg_gene(Combined_Output.df, "tetO", m)
+      
+      ##### tet32 ##### Not included in LW export but is included in molec_profile
+      tet32 <- posneg_gene(Combined_Output.df, "tet32", m)
 
       ##### cat #####
       cat <- posneg_gene(Combined_Output.df, "cat", m)
@@ -194,7 +197,8 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
                              vanA$molec_profile_vanA, vanB$molec_profile_vanB,
                              vanC$molec_profile_vanC, vanD$molec_profile_vanD,
                              vanE$molec_profile_vanE, vanG$molec_profile_vanG, 
-                             rplD$molec_profile_rplD, sep = "; ")
+                             rplD$molec_profile_rplD, tet32$molec_profile_tet32,
+                             sep = "; ")
       molec_profile <- gsub("NA; ", "", molec_profile)
       molec_profile <- sub("; NA", "", molec_profile)
 
@@ -488,11 +492,11 @@ labware_pneumo_amr <- function(Org_id, curr_work_dir) {
   lw_output_bad.df <- filter(lw_output.df, amr_profile == "Error")
   lw_output_good.df <- filter(lw_output.df, amr_profile != "Error")
 
-  van_lzd.df <- filter(lw_output.df, grepl("van|rplD", molec_profile))
+  AMR_warnings.df <- filter(lw_output.df, grepl("van|rplD|tet32", molec_profile))
   
-  if(nrow(van_lzd.df) > 0)
+  if(nrow(AMR_warnings.df) > 0)
   {
-    write.csv(van_lzd.df, paste0(directorylist$output_dir, "SPN_AMR_warnings.csv"), quote = FALSE, row.names = FALSE)
+    write.csv(AMR_warnings.df, paste0(directorylist$output_dir, "SPN_AMR_warnings.csv"), quote = FALSE, row.names = FALSE)
   }
   
   write.csv(lw_output.df, paste0(directorylist$output_dir, "LabWareUpload_PNEUMO_AMR.csv"), quote = FALSE, row.names = FALSE)

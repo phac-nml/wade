@@ -1,7 +1,7 @@
 ##################################################################
 ####  WGS Analysis and Detection of Molecular Markers (WADE)  ####
 ####       Authors: Walter Demczuk & Shelley Peterson         ####
-####                    Date: 2025-05-07                      ####
+####                    Date: 2026-04-15                      ####
 ##################################################################
 
 library(plyr)
@@ -12,8 +12,10 @@ library(Biostrings)
 library(shiny)
 library(shinyWidgets)
 library(DT)
+library(data.table)
 library(readxl)
 library(beepr)
+library(pwalign)
 library(WADE)  #installed from github
 
 #USER INPUT: set location of working directory where system, lookup, mapping, init files
@@ -56,6 +58,13 @@ ui <- fluidPage(
         }')
   )),
   img(src = "PHAC.png"),
+  #theme = bslib::bs_theme(bootswatch = "simplex",
+  #                        primary = "firebrick",
+  #                        secondary = "coral",
+  #                        success = "springgreen",
+  #                        info = "skyblue",
+  #                        warning = "deeppink",
+  #                        danger = "darkorchid"),
 
   titlePanel(strong(h1("Strep/STI WGS Analysis and Detection of Molecular Markers (WADE)", 
                        align = "center"))),
@@ -69,6 +78,9 @@ ui <- fluidPage(
                                  "GBS",
                                  "PNEUMO",
                                  "GONO",
+                                 "MGEN",
+                                 "HFLU",
+                                 "NM",
                                  "Curator"),
                   selected = "GAS"),
 
@@ -81,7 +93,7 @@ ui <- fluidPage(
                                       "NG-STAR" = "NGSTAR",
                                       "NG-MAST" = "NGMAST",
                                       "All Routine Analyses" = "ALL",
-                                      #"MasterBlastR" = "MASTERBLASTR",
+                                      "MasterBlastR" = "MASTERBLASTR",
                                       "WGS Metrics" = "LW_METRICS"),
                        selected = "AMR_ALL")),
 
@@ -94,7 +106,7 @@ ui <- fluidPage(
                                       "16S rRNA" = "rRNA16S",
                                       "Toxin Profile" = "TOXINS",
                                       "All Routine Analyses" = "ALL",
-                                      #"MasterBlastR" = "MASTERBLASTR",
+                                      "MasterBlastR" = "MASTERBLASTR",
                                       "WGS Metrics" = "LW_METRICS"),
                        selected = "AMR")),
 
@@ -119,9 +131,32 @@ ui <- fluidPage(
                                       "SeroTypR" = "SERO",
                                       "Virulence Factors" = "VIRULENCE",
                                       "All Routine Analyses" = "ALL",
-                                      #"MasterBlastR" = "MASTERBLASTR",
+                                      "MasterBlastR" = "MASTERBLASTR",
                                       "WGS Metrics" = "LW_METRICS"),
                        selected = "AMR_ALL")),
+      
+      conditionalPanel(condition = "input.Org == 'MGEN'",
+                       radioButtons("mgentest", h4("Choose an analysis:"),
+                                    choices = list("AMR" = "AMR",
+                                                   "MLST" = "MLST",
+                                                   "MgpB/MG309" = "MGST",
+                                                   "MasterBlastR" = "MASTERBLASTR",
+                                                   "WGS Metrics" = "LW_METRICS"),
+                                    selected = "AMR")),
+      
+      conditionalPanel(condition = "input.Org == 'HFLU'",
+                       radioButtons("hflutest", h4("Choose an analysis:"),
+                                    choices = list("MLST" = "MLST",
+                                                   "MasterBlastR" = "MASTERBLASTR",
+                                                   "WGS Metrics" = "LW_METRICS"),
+                                    selected = "MLST")),
+      
+      conditionalPanel(condition = "input.Org == 'NM'",
+                       radioButtons("nmtest", h4("Choose an analysis:"),
+                                    choices = list("MLST" = "MLST",
+                                                   "MasterBlastR" = "MASTERBLASTR",
+                                                   "WGS Metrics" = "LW_METRICS"),
+                                    selected = "MLST")),
       
       conditionalPanel(condition = "input.gastest == 'M1UK'",
                        radioButtons("variant", h4("Choose a variant:"),
@@ -142,6 +177,12 @@ ui <- fluidPage(
                        choices = list("Update Lookup tables" = "UPDATE_LOOKUPS",
                                       "Contamination Check" = "CONTAMINATION_CHECK",
                                       "GC MIC Comparison" = "MIC_CHECK",
+                                      "Find Sample Duplicates" = "FIND_DUPLICATES",
+                                      "IRIDA LineList Metadata" = "IRIDA_METADATA",
+                                      "Rename Submitted Files" = "FILE_RENAME",
+                                      "Rename Submitted Reads" = "READS_RENAME",
+                                      "Tree Sort Order" = "TREE_ORDER",
+                                      #"Tree Rename Leaves" = "TREE_RENAME",
                                       "Remove Duplicate Sequences" = "REMOVE_DUPLICATES"),
                        selected = "CONTAMINATION_CHECK")),
       
@@ -152,7 +193,8 @@ ui <- fluidPage(
                                                    "GAS MLST" = "GAS_MLST",
                                                    "GAS EMM" = "GAS_EMM",
                                                    "GBS MLST" = "GBS_MLST",
-                                                   "PNEUMO MLST" = "PNEUMO_MLST"),
+                                                   "PNEUMO MLST" = "PNEUMO_MLST",
+                                                   "ALL" = "ALL"),
                                     selected = "GONO_MLST")),
       
       conditionalPanel(condition = "(input.curatortest == 'FIND_DUPLICATES' | input.curatortest == 'IRIDA_METADATA') && input.Org == 'Curator'",
@@ -207,6 +249,7 @@ ui <- fluidPage(
       br(),
       textOutput("error_text"),
       textOutput("Status"),
+      htmlOutput("Warning"),
       
       DT::dataTableOutput("profile_table")
     )
@@ -218,7 +261,6 @@ server <- function(input, output) {
 
   observeEvent(input$action,
   {
-    #remove previous WADE output fasta files
     removefiles(curr_work_dir)
     if(input$Org == "GONO")
     {
@@ -230,8 +272,6 @@ server <- function(input, output) {
              #AMR_DB=(output.df <- AMR_DATABASE_pipeline(input$Org, input$sample, curr_work_dir)),
              #VFDB=(output.df <- VFDB_pipeline(input$Org, input$sample, curr_work_dir)),
              LW_METRICS={output.df <- metrics(input$Org, curr_work_dir)},
-             #AMR = {output.df <- MASTER_pipeline(input$Org, "AMR_ALL", input$sample, "list", curr_work_dir)
-             #      output.df <- MLST_pipeline(input$Org, "NGSTAR_AMR", input$sample, input$locus, curr_work_dir)},
              AMR={output.df <- MASTER_pipeline(input$Org, input$gonotest, input$sample, input$locus, curr_work_dir)},
              AMR_ALL={output.df <- MASTER_pipeline(input$Org, "AMR_ALL", input$sample, "list", curr_work_dir)
                       output.df <- MLST_pipeline(input$Org, "NGSTAR_AMR", input$sample, input$locus, curr_work_dir)
@@ -272,7 +312,7 @@ server <- function(input, output) {
                   output.df <- MASTER_pipeline(input$Org, "TOXINS", input$sample, input$locus, curr_work_dir)
                   output.df <- labware_gas_toxins(input$Org, curr_work_dir)
                   beep(5)},
-             {output.df <- MASTER_pipeline(input$Org, input$gastest, input$sample, input$locus, curr_work_dir)})
+             MASTERBLASTR={output.df <- MASTER_pipeline(input$Org, "MASTERBLASTR", input$sample, input$locus, curr_work_dir)})
     }
 
     if (input$Org == "GBS")
@@ -323,17 +363,60 @@ server <- function(input, output) {
                   output.df <- SEROTYPE_pipeline(input$Org, input$sample, input$locus, "SERO", curr_work_dir)
                   beep(5)},
              {output.df <- MASTER_pipeline(input$Org, input$spntest, input$sample, input$locus, curr_work_dir)})
+      
+      if(file.exists(paste0(curr_work_dir, "Output/SPN_AMR_warnings.csv")))
+      {
+        #output$Warning <- renderText({"
+        #                             Mutations associated with resistance to Vancomycin or Linezolid 
+        #                             were found in one or more S. pneumoniae isolates
+        #                             "})
+        output$Warning <- renderText({paste("<font color=\"#FF0000\"><b>", 
+                                            "Note: Tet32 or mutations associated with resistance to vancomycin 
+                                            or linezolid were found in one or more S. pneumoniae isolates", 
+                                            "</b></font>") })
+      }
     }
-
+    
+    if(input$Org == "MGEN")
+    {
+      switch(input$mgentest,
+             MLST={output.df <- MLST_pipeline(input$Org, "MLST", input$sample, input$locus, curr_work_dir)},
+             MGST={output.df <- MLST_pipeline(input$Org, "MGST", input$sample, input$locus, curr_work_dir)},
+             LW_METRICS={output.df <- metrics(input$Org, curr_work_dir)},
+             AMR={output.df <- MASTER_pipeline(input$Org, input$mgentest, input$sample, input$locus, curr_work_dir)},
+             MASTERBLASTR={output.df <- MASTER_pipeline(input$Org, "MASTERBLASTR", input$sample, input$locus, curr_work_dir)})
+    }
+    
+    if(input$Org == "HFLU")
+    {
+      switch(input$hflutest,
+             MLST={output.df <- MLST_pipeline(input$Org, "MLST", input$sample, input$locus, curr_work_dir)},
+             LW_METRICS={output.df <- metrics(input$Org, curr_work_dir)},
+             MASTERBLASTR={output.df <- MASTER_pipeline(input$Org, "MASTERBLASTR", input$sample, input$locus, curr_work_dir)})
+    }
+    
+    if(input$Org == "NM")
+    {
+      switch(input$hflutest,
+             MLST={output.df <- MLST_pipeline(input$Org, "MLST", input$sample, input$locus, curr_work_dir)
+                   output.df <- NMST11_pipeline(curr_work_dir)},
+             LW_METRICS={output.df <- metrics(input$Org, curr_work_dir)},
+             MASTERBLASTR={output.df <- MASTER_pipeline(input$Org, "MASTERBLASTR", input$sample, input$locus, curr_work_dir)})
+    }
+    
     if (input$Org == "Curator")
     {
       switch(input$curatortest,
              TREE_ORDER={output.df <- nwk_sort_order(input$Org, curr_work_dir)},
+             #TREE_RENAME={output.df <- nwk_rename_samples(input$Org, curr_work_dir)},
              FILE_RENAME={output.df <- rename_submitted(input$curation_orgs, curr_work_dir)},
              REMOVE_DUPLICATES={output.df <- remove_duplicate_fasta(input$Org, input$allele, curr_work_dir)},
+             UPDATE_LOOKUPS={output.df <- update_lookups(input$lookuptables, curr_work_dir)},
              FIND_DUPLICATES={output.df <- find_sample_duplicates(input$duplicates_orgs, curr_work_dir)},
              CONTAMINATION_CHECK={output.df <- proximity_test(input$curation_orgs, curr_work_dir)},
-             MIC_CHECK={output.df <- MIC_compare(curr_work_dir)}
+             MIC_CHECK={output.df <- MIC_compare(curr_work_dir)},
+             IRIDA_METADATA={output.df <- IRIDA_metadata(input$duplicates_orgs, curr_work_dir, input$batch)}
+             #FILE_RENAME = {output.df <- rename_fastas(input$org_code, curr_work_dir)},
       )
     }
 
@@ -358,7 +441,8 @@ server <- function(input, output) {
            GAS = {runblast <- MakeblastDB_pipeline(input$Org, input$gastest, input$locus, curr_work_dir)},
            GBS = {runblast <- MakeblastDB_pipeline(input$Org, input$gbstest, input$locus, curr_work_dir)},
            PNEUMO = {runblast <- MakeblastDB_pipeline(input$Org, input$spntest, input$locus, curr_work_dir)},
-           MGEN = {runblast <- MakeblastDB_pipeline(input$Org, input$mgentest, input$locus, curr_work_dir)})
+           MGEN = {runblast <- MakeblastDB_pipeline(input$Org, input$mgentest, input$locus, curr_work_dir)},
+           HFLU = {runblast <- MakeblastDB_pipeline(input$Org, input$hflutest, input$locus, curr_work_dir)})
   })
   
   observeEvent(input$rename,

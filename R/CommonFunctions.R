@@ -87,6 +87,9 @@ getsampleinfo <- function(SampleList.df, directorylist, reflist, m){
     Allele <- "Sample_Err"
     AlleleNo <- "Sample_Err"
   }
+  # Remove BLAST index from the previous sample now that DestFile is for this sample's contigs
+  unlink(paste0(reflist$DestFile, ".n*"))
+  
   return(list("Allele" = Allele,
               "AlleleNo" = AlleleNo,
               "CurrSampleNo" = CurrSampleNo,
@@ -240,8 +243,7 @@ locusblast <- function(CurrLocus, LocusList.df, sampleinfo, reflist, Test_id, Bl
   {
     Blast_Out_File <- blastquery(directorylist, reflist, CurrLocus, Blast_evalue)
     
-    info = file.info(Blast_Out_File)
-    if(info$size == 0)
+    if(file.size(Blast_Out_File) == 0)
     {
       AlleleNo <- "0"
       if(Test_id == "SERO")
@@ -256,14 +258,16 @@ locusblast <- function(CurrLocus, LocusList.df, sampleinfo, reflist, Test_id, Bl
                               "AlleleEnd", "eValue", "bit")
       if(Test_id %in% c("MLST", "NGMAST", "NGSTAR"))
       {
-        size <- dplyr::filter(LocusList.df, Locus_id == CurrLocus)
-        size <- size$size
+        sizedata <- dplyr::filter(LocusList.df, Locus_id == CurrLocus)
+        size <- sizedata$size
         df.blastout100 <- filter(df.blastout, Ident == 100 & Mismatches == 0 & Gaps == 0 & Align > (size - 10))
-      }else if(Test_id == "NGMAST")
-      {
-        min <- size$min
-        df.blastout100 <- filter(df.blastout, Ident == 100 & Mismatches == 0 & Gaps == 0 & Align >= min)
-      }
+        
+        if(Test_id == "NGMAST")
+        {
+          min <- sizedata$min
+          df.blastout100 <- filter(df.blastout, Ident == 100 & Mismatches == 0 & Gaps == 0 & Align >= min)
+        }
+      }else
       {
         df.blastout100 <- filter(df.blastout, Ident == 100 & Mismatches == 0 & Gaps == 0)        
       }
@@ -296,8 +300,13 @@ locusblast <- function(CurrLocus, LocusList.df, sampleinfo, reflist, Test_id, Bl
           }
         }
         LocusFile <- paste0(reflist$WT_Dir, CurrLocus, ".fasta")
+        #if(!file.exists(paste0(reflist$DestFile, ".nin"))) {
+        #  BlastFormatCommand <- paste0("makeblastdb -in ", reflist$DestFile, " -dbtype nucl")
+        #  try(system(BlastFormatCommand, ignore.stdout = TRUE, ignore.stderr = TRUE))
+        #}
         BlastFormatCommand <- paste0("makeblastdb -in ", reflist$DestFile, " -dbtype nucl")
         try(system(BlastFormatCommand))
+        
         blasthits(reflist, directorylist, LocusFile, "1")
         blastoutput <- readLines(paste0(directorylist$temp_dir, "blastout.txt"))
         blast_parsed <- parseblast(blastoutput, CurrLocus)
@@ -322,8 +331,7 @@ mutationblast <- function(CurrLocus, sampleinfo, directorylist, reflist, Test_id
   {
     Blast_Out_File <- blastquery(directorylist, reflist, CurrLocus, 10e-1)
 
-    info = file.info(Blast_Out_File)
-    if(info$size == 0)
+    if(file.size(Blast_Out_File) == 0)
     {
       Mutations <- "?"
     }else
