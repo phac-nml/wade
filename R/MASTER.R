@@ -32,8 +32,8 @@
 
 #-------------------------------------------------------------------------------
 #  For troubleshooting and debugging
-#   Org_id <- "PNEUMO"                #GAS, GBS, PNEUMO or GONO
-#   Test_id <- "AMR"                  #AMR, TOXINS, VIRULENCE, NGSTAR, rRNA_16S
+#   Org_id <- "GAS"                #GAS, GBS, PNEUMO or GONO
+#   Test_id <- "rRNA16S"                  #AMR, TOXINS, VIRULENCE, NGSTAR, rRNA16S
 #   SampleNo <- "list"
 #   LocusID <- "list"
 #   curr_work_dir <- "C:\\WADE\\"
@@ -73,6 +73,9 @@ MASTER_pipeline <- function(Org_id, Test_id, SampleNo, LocusID, curr_work_dir){
   if(SampleNo == "list")
   {
     SampleList.df <-as_tibble(read.csv(directorylist$SampleList, header = TRUE, sep = ",", stringsAsFactors = FALSE))
+  }else if(SampleNo == "filteredlist")
+  {
+    SampleList.df <-as_tibble(read.csv(paste0(curr_work_dir, "filteredlist.csv"), header = TRUE, sep = ",", stringsAsFactors = FALSE)) 
   }else
   {
     SampleList.df <- tibble(SampleNo, Variable)

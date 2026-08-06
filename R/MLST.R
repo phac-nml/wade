@@ -1,5 +1,5 @@
 #' MLST pipeline for WGS assemblies
-#' July 3, 2024, Walter Demczuk & Shelley Peterson
+#' July 27 2026, Walter Demczuk & Shelley Peterson
 #'
 #' Takes Organism, Sample Number, Locus, and a Variable at queries a contig.fasta file
 #' @param Org_id Organism to query: GAS, PNEUMO or GONO
@@ -14,10 +14,10 @@
 
 #-------------------------------------------------------------------------------
 #  For troubleshooting and debugging
-#  Org_id <- "GONO"                  #GAS, GBS, PNEUMO or GONO
+#  Org_id <- "NM"                  #GAS, GBS, PNEUMO, NM or GONO
 #  SampleNo <- "list"
 #  LocusID <- "list"
-#  Test_id <- "NGSTAR"               #NGSTAR, NGMAST, MLST, NGSTAR_AMR
+#  Test_id <- "MLST"               #NGSTAR, NGMAST, MLST, NGSTAR_AMR
 #  curr_work_dir <- "C:\\WADE\\"
  # Blast_evalue <- "10e-50"          #sets sensitivity of Blast gene match 10e-50 to 10e-150; use 10e-5 for primers
 #-------------------------------------------------------------------------------
@@ -36,7 +36,15 @@ MLST_pipeline <- function(Org_id, Test_id, SampleNo, LocusID, curr_work_dir) {
   {
     Test <- "other"
   }
+
   directorylist <- getdirectory(curr_work_dir, Org_id, Test_id)
+  
+  True_Org_id <- Org_id
+  if(Org_id == "NM")
+  {
+    Org_id <- "GONO"
+  }
+
   reflist <- refdirectory(directorylist, Org_id, Test_id)
   unlink(paste0(directorylist$temp_dir, "blastout.txt")) #this deletes the file!
   #-----------------------------------------------------------------------------
@@ -151,11 +159,16 @@ MLST_pipeline <- function(Org_id, Test_id, SampleNo, LocusID, curr_work_dir) {
     if(Test_id == "NGSTAR")
     {
       profiles.df <- profiles.df %>% dplyr::rename("rRNA23S" = "X23S")
+      profiles.df$penA <- round(as.numeric(profiles.df$penA), 3)
+      profiles.df$penA <- sprintf("%.3f", profiles.df$penA)
     }
     profiles.df <- profiles.df %>% dplyr::mutate(across(everything(), as.character))
     Output <- left_join(Output.df, profiles.df)
-    Output$clonal_complex <- NA
-    Output <- select(Output, -clonal_complex)
+    if(True_Org_id != "NM")
+    {
+      Output$clonal_complex <- NA
+      Output <- select(Output, -clonal_complex)
+    }
   }
 
   ##############################################################################
@@ -183,17 +196,19 @@ MLST_pipeline <- function(Org_id, Test_id, SampleNo, LocusID, curr_work_dir) {
       Output_good <- filter(Output, !is.na(ST))
       Output_bad <- filter(Output, is.na(ST)) 
     }
-    write.csv(Output_good, paste0(directorylist$output_dir, "LabWareUpload_", Org_id, "_", Test_id, "_good.csv"), quote = FALSE, row.names = FALSE)
-    write.csv(Output_bad, paste0(directorylist$output_dir, "LabWareUpload_", Org_id, "_", Test_id, "_bad.csv"), quote = FALSE, row.names = FALSE)
-    write.csv(Output, paste0(directorylist$output_dir, "LabWareUpload_", Org_id, "_", Test_id, ".csv"), quote = FALSE, row.names = FALSE)
+    write.csv(Output_good, paste0(directorylist$output_dir, "LabWareUpload_", True_Org_id, "_", Test_id, "_good.csv"), quote = FALSE, row.names = FALSE)
+    write.csv(Output_bad, paste0(directorylist$output_dir, "LabWareUpload_", True_Org_id, "_", Test_id, "_bad.csv"), quote = FALSE, row.names = FALSE)
+    write.csv(Output, paste0(directorylist$output_dir, "LabWareUpload_", True_Org_id, "_", Test_id, ".csv"), quote = FALSE, row.names = FALSE)
   }
-  write.csv(Output, paste0(directorylist$output_dir, "output_profile_", Org_id, "_", Test_id, ".csv"), quote = FALSE,  row.names = FALSE)
+  write.csv(Output, paste0(directorylist$output_dir, "output_profile_", True_Org_id, "_", Test_id, ".csv"), quote = FALSE,  row.names = FALSE)
 
   elapsed <- format(Sys.time() - start_time)
   
-  cat("\n\nDone!\n\n\n", "Elapsed time: ", elapsed, "\n\n output_profile_", Org_id,
+  cat("\n\nDone!\n\n\n", "Elapsed time: ", elapsed, "\n\n output_profile_", True_Org_id,
       "_", Test_id, ".csv is ready in output folder\n", sep = "")
 
   return(Output) 
   
 } 
+
+  

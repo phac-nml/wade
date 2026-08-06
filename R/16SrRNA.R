@@ -21,8 +21,7 @@ rRNA16S_pipeline <- function(Org_id, curr_work_dir) {
 
   #-----------------------------------------------------------------------------
   # get directory structure and remove previous output files
-  Test_id <- "rRNA16S"
-  directorylist <- getdirectory(curr_work_dir, Org_id, Test_id)
+  directorylist <- getdirectory(curr_work_dir, Org_id, "rRNA16S")
   #-----------------------------------------------------------------------------
 
   Output.df <- as_tibble(read.csv(paste0(directorylist$output_dir, "output_profile_", Org_id, "_rRNA16S.csv"),
@@ -31,13 +30,21 @@ rRNA16S_pipeline <- function(Org_id, curr_work_dir) {
   Labware.df <- tibble(SampleNo = Output.df$SampleNo,
                        Allele = Output.df$X16S_allele,
                        Identification = Output.df$X16S_comments,
-                       Percent_Match = Output.df$X16S_PctWT)
+                       Percent_Match = Output.df$X16S_PctWT,
+                       BlastID = Output.df$X16S_BlastID)
   
   Labware.df$Percent <- as.numeric(str_extract(Labware.df$Percent_Match,  "(?<=\\().+?(?=\\%)"))
+  Labware.df$Blast <- as.numeric(str_extract(Labware.df$BlastID, "(?<=\\().+?(?=\\%)"))
+
   Labware.df$Allele[Labware.df$Allele == ""| Labware.df$Percent < 97] <- "NF"
   Labware.df$Identification[Labware.df$Identification == ""| Labware.df$Percent < 97] <- "NF"
   
-  Labware.df <- select(Labware.df, -Percent)
+  #if(Org_id == "GAS") #added this for assembly issue, but we went back to using the old assembler
+  #{
+  #  Labware.df$Identification[Labware.df$Identification == "NF" & Labware.df$Percent > 50 & Labware.df$Blast == 100] <- "S.pyogenes"
+  #}
+  
+  Labware.df <- select(Labware.df, -c(Percent, BlastID, Blast))
   
   write.csv(Labware.df, paste0(directorylist$output_dir, "LabWareUpload_", Org_id, "_rRNA16S.csv"), 
             quote = FALSE,  row.names = FALSE)
